@@ -1,0 +1,1122 @@
+-- Sistema de registro, envíos y entrega de paquetes - Shalom-Perú
+-- Equipo: Conjunto Criollo Palacios
+-- Creado el 28/02/2025
+
+
+USE master
+GO
+
+IF DB_ID('BDEnviosShalomPeru') IS NOT NULL
+    DROP DATABASE BDEnviosShalomPeru
+GO
+
+CREATE DATABASE BDEnviosShalomPeru
+GO
+
+USE BDEnviosShalomPeru
+GO
+
+-- Creación de la tabla Cliente
+IF OBJECT_ID('Cliente', 'U') IS NOT NULL  
+    DROP TABLE Cliente
+GO
+
+CREATE TABLE Cliente (
+    idC CHAR(9) PRIMARY KEY,
+    tipoDocumC VARCHAR(20) NOT NULL,
+    nroDocumC INT NOT NULL UNIQUE,
+    nombresC VARCHAR(50) NOT NULL,
+    paternoC VARCHAR(50) NOT NULL,
+    maternoC VARCHAR(50) NOT NULL,
+    celularC INT NOT NULL
+)
+GO
+
+-- Creación de la tabla Comprobante
+IF OBJECT_ID('Comprobante', 'U') IS NOT NULL  
+    DROP TABLE Comprobante
+GO
+
+CREATE TABLE Comprobante (
+    idComp CHAR(9) PRIMARY KEY,
+    fechaHoraComp DATETIME NOT NULL,
+    totalComp DECIMAL(10,2) NOT NULL,
+    OrigenComp VARCHAR(100) NOT NULL,
+    DestinoComp VARCHAR(100) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    FOREIGN KEY (idC) REFERENCES Cliente(idC)
+)
+GO
+
+-- Creación de la tabla Paquete
+IF OBJECT_ID('Paquete', 'U') IS NOT NULL  
+    DROP TABLE Paquete
+GO
+
+CREATE TABLE Paquete (
+    idP CHAR(9) PRIMARY KEY,
+    descripcionP VARCHAR(255) NOT NULL,
+    pesoP DECIMAL(10,2) NOT NULL
+)
+GO
+
+-- Creación de la tabla DetalleDelComprobante
+IF OBJECT_ID('DetalleDelComprobante', 'U') IS NOT NULL  
+    DROP TABLE DetalleDelComprobante
+GO
+
+CREATE TABLE DetalleDelComprobante (
+    idDet CHAR(9) PRIMARY KEY,
+    precioPorKiloDet DECIMAL(10,2) NOT NULL,
+    subtotalDet DECIMAL(10,2) NOT NULL,
+    idComp CHAR(9) NOT NULL,
+    idP CHAR(9) NOT NULL,
+    FOREIGN KEY (idComp) REFERENCES Comprobante(idComp),
+    FOREIGN KEY (idP) REFERENCES Paquete(idP)
+)
+GO
+
+-- Insertar un cliente
+INSERT INTO Cliente VALUES 
+('C00000001', 'DNI', 87654321, 'Luis', 'Fernández', 'Pérez', 987654321)
+GO
+
+-- Insertar un comprobante
+INSERT INTO Comprobante VALUES 
+('COMP00001', GETDATE(), 150.00, 'Lima', 'Arequipa', 'C00000001')
+GO
+
+-- Insertar un paquete
+INSERT INTO Paquete VALUES 
+('P00000001', 'Caja con libros', 5.50)
+GO
+
+-- Insertar un detalle de comprobante
+INSERT INTO DetalleDelComprobante VALUES 
+('DET000001', 10.00, 55.00, 'COMP00001', 'P00000001')
+GO
+
+-- Ver clientes
+SELECT * FROM Cliente
+GO
+
+-- Ver comprobantes
+SELECT * FROM Comprobante
+GO
+
+-- Ver paquetes
+SELECT * FROM Paquete
+GO
+
+-- Ver detalles del comprobante
+SELECT * FROM DetalleDelComprobante
+GO
+
+-----------------------------------------------
+
+
+-- Sistema de gestión bancaria
+-- Equipo: Conjunto Criollo Palacios
+-- Creado el 28/02/2025
+
+USE master
+GO
+
+IF DB_ID('BDBanco') IS NOT NULL
+    DROP DATABASE BDBanco
+GO
+
+CREATE DATABASE BDBanco
+GO
+
+USE BDBanco
+GO
+
+-- Creación de la tabla Banco
+IF OBJECT_ID('Banco', 'U') IS NOT NULL  
+    DROP TABLE Banco
+GO
+
+CREATE TABLE Banco (
+    idB CHAR(9) PRIMARY KEY,
+    nombreB VARCHAR(100) NOT NULL,
+    paginaWebB VARCHAR(255) NOT NULL
+)
+GO
+
+-- Creación de la tabla Cliente
+IF OBJECT_ID('Cliente', 'U') IS NOT NULL  
+    DROP TABLE Cliente
+GO
+
+CREATE TABLE Cliente (
+    idC CHAR(9) PRIMARY KEY,
+    tipoDocumC VARCHAR(20) NOT NULL,
+    nroDocumC INT NOT NULL UNIQUE,
+    nombresC VARCHAR(50) NOT NULL,
+    paternoC VARCHAR(50) NOT NULL,
+    maternoC VARCHAR(50) NOT NULL,
+    celularC INT NOT NULL
+)
+GO
+
+-- Creación de la tabla Empleado
+IF OBJECT_ID('Empleado', 'U') IS NOT NULL  
+    DROP TABLE Empleado
+GO
+
+CREATE TABLE Empleado (
+    idE CHAR(9) PRIMARY KEY,
+    tipoDocumE VARCHAR(20) NOT NULL,
+    nroDocumE INT NOT NULL UNIQUE,
+    nombresE VARCHAR(50) NOT NULL,
+    paternoE VARCHAR(50) NOT NULL,
+    maternoE VARCHAR(50) NOT NULL,
+    celularE INT NOT NULL
+)
+GO
+
+-- Creación de la tabla Cuenta
+IF OBJECT_ID('Cuenta', 'U') IS NOT NULL  
+    DROP TABLE Cuenta
+GO
+
+CREATE TABLE Cuenta (
+    idCuenta CHAR(9) PRIMARY KEY,
+    nroCuenta VARCHAR(20) NOT NULL UNIQUE,
+    saldoCuenta DECIMAL(10,2) NOT NULL,
+    idB CHAR(9) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    FOREIGN KEY (idB) REFERENCES Banco(idB),
+    FOREIGN KEY (idC) REFERENCES Cliente(idC)
+)
+GO
+
+-- Creación de la tabla Operación
+IF OBJECT_ID('Operacion', 'U') IS NOT NULL  
+    DROP TABLE Operacion
+GO
+
+CREATE TABLE Operacion (
+    idOpe CHAR(9) PRIMARY KEY,
+    tipoOpe VARCHAR(50) NOT NULL,
+    fechaHoraOpe DATETIME NOT NULL,
+    montoOpe DECIMAL(10,2) NOT NULL,
+    comisionOpe DECIMAL(10,2) NOT NULL,
+    idCuenta CHAR(9) NOT NULL,
+    idE CHAR(9) NOT NULL,
+    FOREIGN KEY (idCuenta) REFERENCES Cuenta(idCuenta),
+    FOREIGN KEY (idE) REFERENCES Empleado(idE)
+)
+GO
+
+-- Insertar un banco
+INSERT INTO Banco VALUES 
+('B00000001', 'Banco Central', 'www.bancocentral.com')
+GO
+
+-- Insertar un cliente
+INSERT INTO Cliente VALUES 
+('C00000001', 'DNI', 87654321, 'Carlos', 'Gómez', 'Ruiz', 987654321)
+GO
+
+-- Insertar un empleado
+INSERT INTO Empleado VALUES 
+('E00000001', 'DNI', 12345678, 'Ana', 'Pérez', 'Lozano', 987123456)
+GO
+
+-- Insertar una cuenta
+INSERT INTO Cuenta VALUES 
+('CU0000001', '123456789012', 5000.00, 'B00000001', 'C00000001')
+GO
+
+-- Insertar una operación
+INSERT INTO Operacion VALUES 
+('OPE000001', 'Depósito', GETDATE(), 1000.00, 10.00, 'CU0000001', 'E00000001')
+GO
+
+-- Ver bancos
+SELECT * FROM Banco
+GO
+
+-- Ver clientes
+SELECT * FROM Cliente
+GO
+
+-- Ver empleados
+SELECT * FROM Empleado
+GO
+
+-- Ver cuentas
+SELECT * FROM Cuenta
+GO
+
+-- Ver operaciones
+SELECT * FROM Operacion
+GO
+
+
+-----------------------------------------------
+
+
+
+-- Sistema de registro de asistencia del INPE
+-- Equipo: Conjunto Criollo Palacios
+-- Creado el 28/02/2025
+
+USE master
+GO
+
+IF DB_ID('BDAsistenciaINPE') IS NOT NULL
+    DROP DATABASE BDAsistenciaINPE
+GO
+
+CREATE DATABASE BDAsistenciaINPE
+GO
+
+USE BDAsistenciaINPE
+GO
+
+-- Creación de la tabla Año
+IF OBJECT_ID('Año', 'U') IS NOT NULL  
+    DROP TABLE Año
+GO
+
+CREATE TABLE Año (
+    idAño CHAR(9) PRIMARY KEY,
+    inicioAño DATE NOT NULL,
+    finAño DATE NOT NULL
+)
+GO
+
+-- Creación de la tabla Empleado
+IF OBJECT_ID('Empleado', 'U') IS NOT NULL  
+    DROP TABLE Empleado
+GO
+
+CREATE TABLE Empleado (
+    idE CHAR(9) PRIMARY KEY,
+    tipoDocumE VARCHAR(20) NOT NULL,
+    nroDocumE INT NOT NULL UNIQUE,
+    nombresE VARCHAR(50) NOT NULL,
+    paternoE VARCHAR(50) NOT NULL,
+    maternoE VARCHAR(50) NOT NULL,
+    celularE INT NOT NULL,
+    idSupervisor CHAR(9) NULL,
+    FOREIGN KEY (idSupervisor) REFERENCES Empleado(idE)
+)
+GO
+
+-- Creación de la tabla Turno
+IF OBJECT_ID('Turno', 'U') IS NOT NULL  
+    DROP TABLE Turno
+GO
+
+CREATE TABLE Turno (
+    idT CHAR(9) PRIMARY KEY,
+    nombreT VARCHAR(50) NOT NULL,
+    inicioT TIME NOT NULL,
+    finT TIME NOT NULL,
+    idAño CHAR(9) NOT NULL,
+    FOREIGN KEY (idAño) REFERENCES Año(idAño)
+)
+GO
+
+-- Creación de la tabla Asistencia
+IF OBJECT_ID('Asistencia', 'U') IS NOT NULL  
+    DROP TABLE Asistencia
+GO
+
+CREATE TABLE Asistencia (
+    idA CHAR(9) PRIMARY KEY,
+    fechaA DATE NOT NULL,
+    diaA VARCHAR(20) NOT NULL,
+    esFeriadoA BIT NOT NULL,
+    asistioA BIT NOT NULL,
+    tardoA BIT NOT NULL,
+    horaEntradaA TIME NULL,
+    horaSalidaA TIME NULL,
+    idE CHAR(9) NOT NULL,
+    idT CHAR(9) NOT NULL,
+    FOREIGN KEY (idE) REFERENCES Empleado(idE),
+    FOREIGN KEY (idT) REFERENCES Turno(idT)
+)
+GO
+
+-- Insertar un año
+INSERT INTO Año VALUES 
+('AÑO2025', '2025-01-01', '2025-12-31')
+GO
+
+-- Insertar un empleado (sin supervisor)
+INSERT INTO Empleado VALUES 
+('E00000001', 'DNI', 87654321, 'Juan', 'García', 'López', 987654321, NULL)
+GO
+
+-- Insertar un empleado (con supervisor)
+INSERT INTO Empleado VALUES 
+('E00000002', 'DNI', 65432187, 'Pedro', 'Mendoza', 'Rojas', 987654322, 'E00000001')
+GO
+
+-- Insertar un turno con referencia al año
+INSERT INTO Turno VALUES 
+('TURNO001', 'Mañana', '07:00', '15:00', 'AÑO2025')
+GO
+
+-- Insertar una asistencia
+INSERT INTO Asistencia VALUES 
+('ASIS00001', '2025-02-28', 'Viernes', 0, 1, 0, '07:05', '15:00', 'E00000002', 'TURNO001')
+GO
+
+-- Ver años
+SELECT * FROM Año
+GO
+
+-- Ver empleados
+SELECT * FROM Empleado
+GO
+
+-- Ver turnos
+SELECT * FROM Turno
+GO
+
+-- Ver asistencias
+SELECT * FROM Asistencia
+GO
+
+
+
+-----------------------------------------------
+
+
+
+
+
+-- Sistema de registro de venta en la pollería "Don Gallino"
+-- Creado el 28/02/2025
+
+USE master
+GO
+
+IF DB_ID('BDDonGallino') IS NOT NULL
+    DROP DATABASE BDDonGallino
+GO
+
+CREATE DATABASE BDDonGallino
+GO
+
+USE BDDonGallino
+GO
+
+-- Creación de la tabla Cliente
+IF OBJECT_ID('Cliente', 'U') IS NOT NULL  
+    DROP TABLE Cliente
+GO
+
+CREATE TABLE Cliente (
+    idC CHAR(9) PRIMARY KEY,
+    tipoDocumC VARCHAR(20) NOT NULL,
+    nroDocumC INT NOT NULL UNIQUE,
+    nombresC VARCHAR(50) NOT NULL,
+    paternoC VARCHAR(50) NOT NULL,
+    maternoC VARCHAR(50) NOT NULL,
+    celularC INT NOT NULL
+)
+GO
+
+-- Creación de la tabla Categoria
+IF OBJECT_ID('Categoria', 'U') IS NOT NULL  
+    DROP TABLE Categoria
+GO
+
+CREATE TABLE Categoria (
+    idCat CHAR(9) PRIMARY KEY,
+    nombreCat VARCHAR(50) NOT NULL,
+    descripcionCat TEXT NULL
+)
+GO
+
+-- Creación de la tabla Producto
+IF OBJECT_ID('Producto', 'U') IS NOT NULL  
+    DROP TABLE Producto
+GO
+
+CREATE TABLE Producto (
+    idP CHAR(9) PRIMARY KEY,
+    nombreP VARCHAR(50) NOT NULL,
+    descripcionP TEXT NULL,
+    precioReferencialP DECIMAL(10,2) NOT NULL,
+    idCat CHAR(9) NOT NULL,
+    FOREIGN KEY (idCat) REFERENCES Categoria(idCat)
+)
+GO
+
+-- Creación de la tabla Comprobante
+IF OBJECT_ID('Comprobante', 'U') IS NOT NULL  
+    DROP TABLE Comprobante
+GO
+
+CREATE TABLE Comprobante (
+    idComp CHAR(9) PRIMARY KEY,
+    fechaHoraComp DATETIME NOT NULL,
+    totalComp DECIMAL(10,2) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    FOREIGN KEY (idC) REFERENCES Cliente(idC)
+)
+GO
+
+-- Creación de la tabla Detalle
+IF OBJECT_ID('Detalle', 'U') IS NOT NULL  
+    DROP TABLE Detalle
+GO
+
+CREATE TABLE Detalle (
+    idDet CHAR(9) PRIMARY KEY,
+    cantidadDet INT NOT NULL,
+    precioRealUnitarioDet DECIMAL(10,2) NOT NULL,
+    subtotalDet DECIMAL(10,2) NOT NULL,
+    idComp CHAR(9) NOT NULL,
+    idP CHAR(9) NOT NULL,
+    FOREIGN KEY (idComp) REFERENCES Comprobante(idComp),
+    FOREIGN KEY (idP) REFERENCES Producto(idP)
+)
+GO
+
+-- Insertar datos de prueba
+
+-- Insertar clientes
+INSERT INTO Cliente VALUES 
+('C00000001', 'DNI', 12345678, 'Juan', 'Pérez', 'Gómez', 987654321),
+('C00000002', 'DNI', 87654321, 'María', 'López', 'Fernández', 987654322)
+GO
+
+-- Insertar categorías
+INSERT INTO Categoria VALUES 
+('CAT001', 'Pollo', 'Platillos a base de pollo'),
+('CAT002', 'Bebidas', 'Refrescos y bebidas en general')
+GO
+
+-- Insertar productos
+INSERT INTO Producto VALUES 
+('P00000001', 'Pollo a la brasa', '1/4 de pollo con papas y ensalada', 25.00, 'CAT001'),
+('P00000002', 'Gaseosa 500ml', 'Bebida refrescante', 5.00, 'CAT002')
+GO
+
+-- Insertar comprobantes
+INSERT INTO Comprobante VALUES 
+('COMP0001', '2025-02-28 12:30:00', 55.00, 'C00000001')
+GO
+
+-- Insertar detalles
+INSERT INTO Detalle VALUES 
+('DET00001', 2, 25.00, 50.00, 'COMP0001', 'P00000001'),
+('DET00002', 1, 5.00, 5.00, 'COMP0001', 'P00000002')
+GO
+
+-- Consultas para ver los datos ingresados
+SELECT * FROM Cliente
+GO
+
+SELECT * FROM Categoria
+GO
+
+SELECT * FROM Producto
+GO
+
+SELECT * FROM Comprobante
+GO
+
+SELECT * FROM Detalle
+GO
+
+
+
+-----------------------------------------------
+
+
+
+-- Sistema de registro de entrada y salida de electrodomésticos "Electro Track"
+-- Equipo: Conjunto Criollo Palacios
+-- Creado el 28/02/2025
+
+USE master
+GO
+
+IF DB_ID('BDElectroTrack') IS NOT NULL
+    DROP DATABASE BDElectroTrack
+GO
+
+CREATE DATABASE BDElectroTrack
+GO
+
+USE BDElectroTrack
+GO
+
+-- Creación de la tabla Proveedor
+IF OBJECT_ID('Proveedor', 'U') IS NOT NULL  
+    DROP TABLE Proveedor
+GO
+
+CREATE TABLE Proveedor (
+    idP CHAR(9) PRIMARY KEY,
+    razonSocialP VARCHAR(100) NOT NULL,
+    direccionP VARCHAR(150) NOT NULL
+)
+GO
+
+-- Creación de la tabla OrdenDeCompra
+IF OBJECT_ID('OrdenDeCompra', 'U') IS NOT NULL  
+    DROP TABLE OrdenDeCompra
+GO
+
+CREATE TABLE OrdenDeCompra (
+    idOrden CHAR(9) PRIMARY KEY,
+    fechaHoraOrden DATETIME NOT NULL,
+    totalOrden DECIMAL(10,2) NOT NULL,
+    idP CHAR(9) NOT NULL,
+    FOREIGN KEY (idP) REFERENCES Proveedor(idP)
+)
+GO
+
+-- Creación de la tabla Cliente
+IF OBJECT_ID('Cliente', 'U') IS NOT NULL  
+    DROP TABLE Cliente
+GO
+
+CREATE TABLE Cliente (
+    idC CHAR(9) PRIMARY KEY,
+    tipoDocumC VARCHAR(20) NOT NULL,
+    nroDocumC INT NOT NULL UNIQUE,
+    nombresC VARCHAR(50) NOT NULL,
+    paternoC VARCHAR(50) NOT NULL,
+    maternoC VARCHAR(50) NOT NULL,
+    celularC INT NOT NULL
+)
+GO
+
+-- Creación de la tabla Comprobante
+IF OBJECT_ID('Comprobante', 'U') IS NOT NULL  
+    DROP TABLE Comprobante
+GO
+
+CREATE TABLE Comprobante (
+    idComp CHAR(9) PRIMARY KEY,
+    tipoComp VARCHAR(20) NOT NULL,
+    fechaHoraComp DATETIME NOT NULL,
+    totalComp DECIMAL(10,2) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    FOREIGN KEY (idC) REFERENCES Cliente(idC)
+)
+GO
+
+-- Creación de la tabla Electrodomestico
+IF OBJECT_ID('Electrodomestico', 'U') IS NOT NULL  
+    DROP TABLE Electrodomestico
+GO
+
+CREATE TABLE Electrodomestico (
+    idE CHAR(9) PRIMARY KEY,
+    nombreE VARCHAR(50) NOT NULL,
+    marcaE VARCHAR(50) NOT NULL,
+    modeloE VARCHAR(50) NOT NULL,
+    precioVentaE DECIMAL(10,2) NOT NULL,
+    precioCompraE DECIMAL(10,2) NOT NULL
+)
+GO
+
+-- Creación de la tabla DetalleDeIngresoSalida
+IF OBJECT_ID('detalleDeIngresoSalida', 'U') IS NOT NULL  
+    DROP TABLE detalleDeIngresoSalida
+GO
+
+CREATE TABLE detalleDeIngresoSalida (
+    idDet CHAR(9) PRIMARY KEY,
+    tipoDet VARCHAR(20) NOT NULL,
+    subtotalDet DECIMAL(10,2) NOT NULL,
+    cantidadDet INT NOT NULL,
+    idE CHAR(9) NOT NULL,
+    idComp CHAR(9) NULL,
+    idOrden CHAR(9) NULL,
+    FOREIGN KEY (idE) REFERENCES Electrodomestico(idE),
+    FOREIGN KEY (idComp) REFERENCES Comprobante(idComp),
+    FOREIGN KEY (idOrden) REFERENCES OrdenDeCompra(idOrden)
+)
+GO
+
+-- Insertar datos de prueba
+
+-- Insertar proveedores
+INSERT INTO Proveedor VALUES 
+('P00000001', 'ElectroGlobal S.A.', 'Av. Principal 123'),
+('P00000002', 'TechHome Ltda.', 'Calle Secundaria 456')
+GO
+
+-- Insertar órdenes de compra
+INSERT INTO OrdenDeCompra VALUES 
+('ORD00001', '2025-02-28 08:30:00', 15000.00, 'P00000001'),
+('ORD00002', '2025-02-28 09:15:00', 12000.00, 'P00000002')
+GO
+
+-- Insertar clientes
+INSERT INTO Cliente VALUES 
+('C00000001', 'DNI', 12345678, 'Juan', 'Pérez', 'Gómez', 987654321),
+('C00000002', 'DNI', 87654321, 'María', 'López', 'Fernández', 987654322)
+GO
+
+-- Insertar comprobantes
+INSERT INTO Comprobante VALUES 
+('COMP0001', 'Factura', '2025-02-28 12:30:00', 3500.00, 'C00000001'),
+('COMP0002', 'Boleta', '2025-02-28 13:15:00', 2000.00, 'C00000002')
+GO
+
+-- Insertar electrodomésticos
+INSERT INTO Electrodomestico VALUES 
+('E00000001', 'Televisor LED 55"', 'Samsung', 'UN55AU7000', 2500.00, 1800.00),
+('E00000002', 'Refrigeradora 400L', 'LG', 'GR-B405', 3000.00, 2200.00)
+GO
+
+-- Insertar detalles de ingreso/salida
+INSERT INTO detalleDeIngresoSalida VALUES 
+('DET00001', 'Venta', 2500.00, 1, 'E00000001', 'COMP0001', NULL),
+('DET00002', 'Venta', 3000.00, 1, 'E00000002', 'COMP0002', NULL),
+('DET00003', 'Compra', 1800.00, 10, 'E00000001', NULL, 'ORD00001'),
+('DET00004', 'Compra', 2200.00, 5, 'E00000002', NULL, 'ORD00002')
+GO
+
+-- Consultas para ver los datos ingresados
+SELECT * FROM Proveedor
+GO
+
+SELECT * FROM OrdenDeCompra
+GO
+
+SELECT * FROM Cliente
+GO
+
+SELECT * FROM Comprobante
+GO
+
+SELECT * FROM Electrodomestico
+GO
+
+SELECT * FROM detalleDeIngresoSalida
+GO
+
+
+
+
+
+-----------------------------------------------
+
+
+
+
+
+
+-- Sistema de registro de asistencia de enfermeros - BD Mac Salud
+-- Creado el 28/02/2025
+
+USE master
+GO
+
+IF DB_ID('BDMacSalud') IS NOT NULL
+    DROP DATABASE BDMacSalud
+GO
+
+CREATE DATABASE BDMacSalud
+GO
+
+USE BDMacSalud
+GO
+
+-- Creación de la tabla Enfermero
+IF OBJECT_ID('Enfermero', 'U') IS NOT NULL  
+    DROP TABLE Enfermero
+GO
+
+CREATE TABLE Enfermero (
+    idE CHAR(9) PRIMARY KEY,
+    tipoDocumE VARCHAR(20) NOT NULL,
+    nroDocumE INT NOT NULL UNIQUE,
+    nombresE VARCHAR(50) NOT NULL,
+    paternoE VARCHAR(50) NOT NULL,
+    maternoE VARCHAR(50) NOT NULL,
+    fechaNacimientoE DATE NOT NULL,
+    generoE VARCHAR(10) NOT NULL
+)
+GO
+
+-- Creación de la tabla Calendario
+IF OBJECT_ID('Calendario', 'U') IS NOT NULL  
+    DROP TABLE Calendario
+GO
+
+CREATE TABLE Calendario (
+    idC CHAR(9) PRIMARY KEY,
+    inicioC DATE NOT NULL,
+    finC DATE NOT NULL,
+    nombreC VARCHAR(50) NOT NULL
+)
+GO
+
+-- Creación de la tabla Ambiente
+IF OBJECT_ID('Ambiente', 'U') IS NOT NULL  
+    DROP TABLE Ambiente
+GO
+
+CREATE TABLE Ambiente (
+    idAmb CHAR(9) PRIMARY KEY,
+    nroAmb INT NOT NULL,
+    ubicacionAmb VARCHAR(100) NOT NULL
+)
+GO
+
+-- Creación de la tabla Asistencia
+IF OBJECT_ID('Asistencia', 'U') IS NOT NULL  
+    DROP TABLE Asistencia
+GO
+
+CREATE TABLE Asistencia (
+    idA CHAR(9) PRIMARY KEY,
+    fechaA DATE NOT NULL,
+    diaA VARCHAR(20) NOT NULL,
+    asistioA BIT NOT NULL,
+    tardoA BIT NOT NULL,
+    horaEntradaA TIME NULL,
+    horaSalidaA TIME NULL,
+    justificacionA TEXT NULL,
+    esDescansoA BIT NOT NULL,
+    idE CHAR(9) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    idAmb CHAR(9) NOT NULL,
+    FOREIGN KEY (idE) REFERENCES Enfermero(idE),
+    FOREIGN KEY (idC) REFERENCES Calendario(idC),
+    FOREIGN KEY (idAmb) REFERENCES Ambiente(idAmb)
+)
+GO
+
+-- Insertar datos de prueba
+
+-- Insertar enfermeros
+INSERT INTO Enfermero VALUES 
+('E00000001', 'DNI', 87654321, 'Carlos', 'Ramírez', 'Gómez', '1990-05-14', 'Masculino'),
+('E00000002', 'DNI', 65432187, 'Laura', 'Mendoza', 'Rojas', '1985-09-22', 'Femenino')
+GO
+
+-- Insertar calendarios
+INSERT INTO Calendario VALUES 
+('CAL2025', '2025-01-01', '2025-12-31', 'Calendario 2025')
+GO
+
+-- Insertar ambientes
+INSERT INTO Ambiente VALUES 
+('AMB001', 101, 'Sala de emergencias'),
+('AMB002', 202, 'Unidad de Cuidados Intensivos')
+GO
+
+-- Insertar asistencias
+INSERT INTO Asistencia VALUES 
+('ASIS0001', '2025-02-28', 'Viernes', 1, 0, '07:00', '15:00', NULL, 0, 'E00000001', 'CAL2025', 'AMB001'),
+('ASIS0002', '2025-02-28', 'Viernes', 0, 0, NULL, NULL, 'Licencia médica', 0, 'E00000002', 'CAL2025', 'AMB002')
+GO
+
+-- Consultas para ver los datos ingresados
+SELECT * FROM Enfermero
+GO
+
+SELECT * FROM Calendario
+GO
+
+SELECT * FROM Ambiente
+GO
+
+SELECT * FROM Asistencia
+GO
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------
+
+
+
+
+
+
+
+
+-- Sistema de facturación electrónica de la pollería Los Ángeles.
+-- Equipo: Conjunto Criollo Palacios
+-- 28/2/2025
+
+USE master
+GO
+IF DB_ID('BDFacturacionPolleria') IS NOT NULL
+
+    DROP DATABASE BDFacturacionPolleria
+GO
+
+CREATE DATABASE BDFacturacionPolleria
+GO
+
+USE BDFacturacionPolleria
+GO
+
+-- Creación de la tabla Cliente
+IF OBJECT_ID('Cliente', 'U') IS NOT NULL  
+    DROP TABLE Cliente
+GO
+
+CREATE TABLE Cliente (
+    idC CHAR(9) PRIMARY KEY,
+    tipoDocumC VARCHAR(20) NOT NULL,
+    nroDocumC VARCHAR(20) NOT NULL UNIQUE,
+    nombresC VARCHAR(50) NOT NULL,
+    paternoC VARCHAR(50) NOT NULL,
+    maternoC VARCHAR(50) NOT NULL,
+    celularC VARCHAR(15) NOT NULL,
+    emailC VARCHAR(100) -- Nuevo campo agregado
+)
+GO
+
+-- Creación de la tabla Comprobante
+IF OBJECT_ID('Comprobante', 'U') IS NOT NULL  
+    DROP TABLE Comprobante
+GO
+
+CREATE TABLE Comprobante (
+    idComp CHAR(9) PRIMARY KEY,
+    fechaHoraComp DATETIME NOT NULL,
+    totalComp DECIMAL(10,2) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    metodoPagoComp VARCHAR(50), -- Nuevo campo agregado
+    FOREIGN KEY (idC) REFERENCES Cliente(idC)
+)
+GO
+
+-- Creación de la tabla Categoría
+IF OBJECT_ID('Categoria', 'U') IS NOT NULL  
+    DROP TABLE Categoria
+GO
+
+CREATE TABLE Categoria (
+    idCat CHAR(9) PRIMARY KEY,
+    nombreCat VARCHAR(50) NOT NULL,
+    descripcionCat VARCHAR(255) NOT NULL,
+    impuestoCat DECIMAL(5,2) -- Nuevo campo agregado
+)
+GO
+
+-- Creación de la tabla Producto
+IF OBJECT_ID('Producto', 'U') IS NOT NULL  
+    DROP TABLE Producto
+GO
+
+CREATE TABLE Producto (
+    idP CHAR(9) PRIMARY KEY,
+    nombreP VARCHAR(50) NOT NULL,
+    descripcionP VARCHAR(255) NOT NULL,
+    precioReferencialP DECIMAL(10,2) NOT NULL,
+    idCat CHAR(9) NOT NULL,
+    stockP INT NOT NULL, -- Nuevo campo agregado
+    FOREIGN KEY (idCat) REFERENCES Categoria(idCat)
+)
+GO
+
+-- Creación de la tabla Detalle
+IF OBJECT_ID('Detalle', 'U') IS NOT NULL  
+    DROP TABLE Detalle
+GO
+
+CREATE TABLE Detalle (
+    idDet CHAR(9) PRIMARY KEY,
+    cantidadDet INT NOT NULL CHECK (cantidadDet > 0),
+    precioRealUnitarioDet DECIMAL(10,2) NOT NULL,
+    subtotalDet DECIMAL(10,2) NOT NULL,
+    idComp CHAR(9) NOT NULL,
+    idP CHAR(9) NOT NULL,
+    descuentoDet DECIMAL(10,2), -- Nuevo campo agregado
+    FOREIGN KEY (idComp) REFERENCES Comprobante(idComp),
+    FOREIGN KEY (idP) REFERENCES Producto(idP)
+)
+GO
+
+-- Insertar un cliente usando valores directos
+INSERT INTO Cliente VALUES 
+('C00000001', 'DNI', '12345678', 'Juan', 'Perez', 'Lopez', '987654321', 'juan.perez@mail.com')
+GO
+
+-- Insertar un comprobante
+INSERT INTO Comprobante VALUES 
+('COMP00001', GETDATE(), 150.00, 'C00000001', 'Tarjeta de Crédito')
+GO
+
+-- Insertar una categoría
+INSERT INTO Categoria VALUES 
+('CAT000001', 'Pollos', 'Categoría de pollos a la brasa y a la parrilla', 18.00)
+GO
+
+-- Insertar un producto
+INSERT INTO Producto VALUES 
+('PROD00001', 'Pollo a la brasa', 'Pollo entero con papas y ensalada', 55.00, 'CAT000001', 50)
+GO
+
+-- Insertar un detalle
+INSERT INTO Detalle VALUES 
+('DET000001', 2, 55.00, 110.00, 'COMP00001', 'PROD00001', 10.00)
+GO
+
+-- Ver clientes
+SELECT * FROM Cliente
+GO
+
+-- Ver comprobantes
+SELECT * FROM Comprobante
+GO
+
+-- Ver categorías
+SELECT * FROM Categoria
+GO
+
+
+
+-----------------------------------------------
+
+
+
+
+-- Registro de asistencia de clientes del gimnasio ‘Titanium’
+-- Equipo: Conjunto Criollo Palacios
+-- 28/2/2025
+USE master
+GO
+
+-- Verificar si la base de datos existe y eliminarla
+IF DB_ID('Titanium') IS NOT NULL
+    DROP DATABASE Titanium
+GO
+
+-- Crear la base de datos
+CREATE DATABASE Titanium
+GO
+
+-- Usar la base de datos creada
+USE Titanium
+GO
+
+-- Crear la tabla Cliente
+IF OBJECT_ID('Cliente', 'U') IS NOT NULL
+    DROP TABLE Cliente
+GO
+
+CREATE TABLE Cliente (
+    idC CHAR(3) PRIMARY KEY,
+    tipoDocumC VARCHAR(50),
+    nroDocumC VARCHAR(50),
+    nombresC VARCHAR(100),
+    paternoC VARCHAR(50),
+    maternoC VARCHAR(50),
+    generoC VARCHAR(10),
+    fechaNacimC DATE,
+    enfermedadesC VARCHAR(255),
+    celularC VARCHAR(20),
+    correoC VARCHAR(100),
+    direccionC VARCHAR(255) -- Nuevo dato agregado
+)
+GO
+
+-- Crear la tabla Disciplina
+IF OBJECT_ID('Disciplina', 'U') IS NOT NULL
+    DROP TABLE Disciplina
+GO
+
+CREATE TABLE Disciplina (
+    idD CHAR(3) PRIMARY KEY,
+    nombreD VARCHAR(100),
+    descripcionD VARCHAR(255),
+    nivelD VARCHAR(50),
+    duracionD INT -- Nuevo dato agregado (en minutos)
+)
+GO
+
+-- Crear la tabla GrupoDisciplina
+IF OBJECT_ID('GrupoDisciplina', 'U') IS NOT NULL
+    DROP TABLE GrupoDisciplina
+GO
+
+CREATE TABLE GrupoDisciplina (
+    idG CHAR(3) PRIMARY KEY,
+    idD CHAR(3),
+    nombreG VARCHAR(100),
+    fechaInicioG DATE,
+    fechaFinG DATE,
+    cupoMaximoG INT,
+    horarioG VARCHAR(50), -- Nuevo dato agregado
+    FOREIGN KEY (idD) REFERENCES Disciplina(idD)
+)
+GO
+
+-- Crear la tabla Asistencia
+IF OBJECT_ID('Asistencia', 'U') IS NOT NULL
+    DROP TABLE Asistencia
+GO
+
+CREATE TABLE Asistencia (
+    idA CHAR(3) PRIMARY KEY,
+    idC CHAR(3),
+    fechaA DATE,
+    diaA VARCHAR(20),
+    esFeriadoA VARCHAR(10),
+    asisteA VARCHAR(10),
+    horaEntradaA DATETIME,
+    idG CHAR(3),
+    comentarioA VARCHAR(255),
+    temperaturaA DECIMAL(4,2), -- Nuevo dato agregado (control sanitario)
+    FOREIGN KEY (idC) REFERENCES Cliente(idC),
+    FOREIGN KEY (idG) REFERENCES GrupoDisciplina(idG)
+)
+GO
+
+-- Insertar datos en Cliente usando la forma alternativa
+INSERT INTO Cliente VALUES 
+('C01', 'DNI', '12345678', 'Juan', 'Perez', 'Lopez', 'Masculino', '1990-05-15', 'Ninguna', '987654321', 'juan.perez@mail.com', 'Av. Siempre Viva 123')
+GO
+
+-- Insertar datos en Disciplina usando la forma alternativa
+INSERT INTO Disciplina VALUES 
+('D01', 'CrossFit', 'Entrenamiento de alta intensidad', 'Avanzado', 60)
+GO
+
+-- Insertar datos en GrupoDisciplina usando la forma alternativa
+INSERT INTO GrupoDisciplina VALUES 
+('G01', 'D01', 'Grupo de Mañana', '2025-03-01', '2025-06-01', 20, '07:00 - 08:00 AM')
+GO
+
+-- Insertar datos en Asistencia usando la forma alternativa
+INSERT INTO Asistencia VALUES 
+('A01', 'C01', '2025-03-05', 'Miércoles', 'No', 'Sí', '2025-03-05 07:05:00', 'G01', 'Llegó a tiempo', 36.5)
+GO
+
+-- Mostrar datos de Cliente
+SELECT * FROM Cliente
+GO
+
+-- Mostrar datos de Disciplina
+SELECT * FROM Disciplina
+GO
+
+-- Mostrar datos de GrupoDisciplina
+SELECT * FROM GrupoDisciplina
+GO
+
+-- Mostrar datos de Asistencia
+SELECT * FROM Asistencia
+GO
+
+
