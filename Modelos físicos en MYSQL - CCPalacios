@@ -1,0 +1,497 @@
+-- Sistema de registro, envíos y entrega de paquetes por la empresa nacional privada Shaloom-Perú 
+-- Crear tabla Cliente
+CREATE TABLE Cliente (
+    idCliente INT PRIMARY KEY,
+    tipoDocmC VARCHAR(20),
+    nroDocmC VARCHAR(20),
+    nombresC VARCHAR(50),
+    paternoC VARCHAR(50),
+    maternoC VARCHAR(50),
+    celularC VARCHAR(15)
+);
+
+-- Crear tabla Comprobante
+CREATE TABLE Comprobante (
+    idComp INT PRIMARY KEY,
+    fechaHoraComp DATETIME,
+    totalComp DECIMAL(10,2),
+    OrigenComp VARCHAR(100),
+    DestinoComp VARCHAR(100),
+    idCliente INT,
+    FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente) ON DELETE CASCADE
+);
+
+-- Crear tabla Paquete
+CREATE TABLE Paquete (
+    idP INT PRIMARY KEY,
+    descriptionP VARCHAR(255),
+    pesoP DECIMAL(10,2)
+);
+
+-- Crear tabla DetalleDelComprobante
+CREATE TABLE DetalleDelComprobante (
+    idDet INT PRIMARY KEY,
+    precioPorKiloDet DECIMAL(10,2),
+    subTotalDet DECIMAL(10,2),
+    idComp INT,
+    idP INT,
+    FOREIGN KEY (idComp) REFERENCES Comprobante(idComp) ON DELETE CASCADE,
+    FOREIGN KEY (idP) REFERENCES Paquete(idP) ON DELETE CASCADE
+);
+
+-- Sistema de registro de transacciones bancarias a nivel nacional - Perú de la empresa Super Giros. 
+
+
+-- Usar la base de datos
+USE BDBanco;
+
+-- Crear tabla Banco
+CREATE TABLE Banco (
+    idB CHAR(9) PRIMARY KEY,
+    nombreB VARCHAR(100) NOT NULL,
+    paginaWebB VARCHAR(255) NOT NULL
+);
+
+-- Crear tabla Cliente
+CREATE TABLE Cliente (
+    idC CHAR(9) PRIMARY KEY,
+    tipoDocumC VARCHAR(20) NOT NULL,
+    nroDocumC INT NOT NULL UNIQUE,
+    nombresC VARCHAR(50) NOT NULL,
+    paternoC VARCHAR(50) NOT NULL,
+    maternoC VARCHAR(50) NOT NULL,
+    celularC INT NOT NULL
+);
+
+-- Crear tabla Empleado
+CREATE TABLE Empleado (
+    idE CHAR(9) PRIMARY KEY,
+    tipoDocumE VARCHAR(20) NOT NULL,
+    nroDocumE INT NOT NULL UNIQUE,
+    nombresE VARCHAR(50) NOT NULL,
+    paternoE VARCHAR(50) NOT NULL,
+    maternoE VARCHAR(50) NOT NULL,
+    celularE INT NOT NULL
+);
+
+-- Crear tabla Cuenta
+CREATE TABLE Cuenta (
+    idCuenta CHAR(9) PRIMARY KEY,
+    nroCuenta VARCHAR(20) NOT NULL UNIQUE,
+    saldoCuenta DECIMAL(10,2) NOT NULL,
+    idB CHAR(9) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    FOREIGN KEY (idB) REFERENCES Banco(idB) ON DELETE CASCADE,
+    FOREIGN KEY (idC) REFERENCES Cliente(idC) ON DELETE CASCADE
+);
+
+-- Crear tabla Operacion
+CREATE TABLE Operacion (
+    idOpe CHAR(9) PRIMARY KEY,
+    tipoOpe VARCHAR(50) NOT NULL,
+    fechaHoraOpe DATETIME NOT NULL,
+    montoOpe DECIMAL(10,2) NOT NULL,
+    comisionOpe DECIMAL(10,2) NOT NULL,
+    idCuenta CHAR(9) NOT NULL,
+    idE CHAR(9) NOT NULL,
+    FOREIGN KEY (idCuenta) REFERENCES Cuenta(idCuenta) ON DELETE CASCADE,
+    FOREIGN KEY (idE) REFERENCES Empleado(idE) ON DELETE CASCADE
+);
+
+
+
+-- Sistema de registro de asistencia del personal del INPE.
+
+-- BDINPE
+-- Creado el 28/02/2025
+-- Crear tabla Año
+CREATE TABLE Año (
+    idAño CHAR(9) PRIMARY KEY,
+    inicioAño DATE NOT NULL,
+    finAño DATE NOT NULL
+);
+-- Crear tabla Empleado
+CREATE TABLE Empleado (
+    idE CHAR(9) PRIMARY KEY,
+    tipoDocumE VARCHAR(20) NOT NULL,
+    nroDocumE INT NOT NULL UNIQUE,
+    nombresE VARCHAR(50) NOT NULL,
+    paternoE VARCHAR(50) NOT NULL,
+    maternoE VARCHAR(50) NOT NULL,
+    celularE INT NOT NULL,
+    idSupervisor CHAR(9) NULL,
+    FOREIGN KEY (idSupervisor) REFERENCES Empleado(idE) ON DELETE SET NULL
+);
+-- Crear tabla Turno
+CREATE TABLE Turno (
+    idT CHAR(9) PRIMARY KEY,
+    nombreT VARCHAR(50) NOT NULL,
+    inicioT TIME NOT NULL,
+    finT TIME NOT NULL,
+    idAño CHAR(9) NOT NULL,
+    FOREIGN KEY (idAño) REFERENCES Año(idAño) ON DELETE CASCADE
+);
+-- Crear tabla Asistencia
+CREATE TABLE Asistencia (
+    idA CHAR(9) PRIMARY KEY,
+    fechaA DATE NOT NULL,
+    diaA VARCHAR(20) NOT NULL,
+    esFeriadoA BOOLEAN NOT NULL,
+    asistioA BOOLEAN NOT NULL,
+    tardoA BOOLEAN NOT NULL,
+    horaEntradaA TIME NULL,
+    horaSalidaA TIME NULL,
+    idE CHAR(9) NOT NULL,
+    idT CHAR(9) NOT NULL,
+    FOREIGN KEY (idE) REFERENCES Empleado(idE) ON DELETE CASCADE,
+    FOREIGN KEY (idT) REFERENCES Turno(idT) ON DELETE CASCADE
+);
+
+
+-- Sistema de registro de venta de platillos y bebidas en la pollería “Don Gallino”
+
+
+-- Crear tabla Cliente
+CREATE TABLE Cliente (
+    idC INT AUTO_INCREMENT PRIMARY KEY,
+    tipoDocumC VARCHAR(20),
+    nroDocumC VARCHAR(20) UNIQUE,
+    nombresC VARCHAR(50),
+    paternoC VARCHAR(50),
+    maternoC VARCHAR(50),
+    celularC VARCHAR(20)
+);
+-- Crear tabla Comprobante
+CREATE TABLE Comprobante (
+    idComp INT AUTO_INCREMENT PRIMARY KEY,
+    fechaHoraComp DATETIME,
+    totalComp DECIMAL(10,2),
+    idC INT,
+    FOREIGN KEY (idC) REFERENCES Cliente(idC) ON DELETE CASCADE
+);
+-- Crear tabla Categoria
+CREATE TABLE Categoria (
+    idCat INT AUTO_INCREMENT PRIMARY KEY,
+    nombreCat VARCHAR(50),
+    descripcionCat VARCHAR(255)
+);
+-- Crear tabla Producto
+CREATE TABLE Producto (
+    idP INT AUTO_INCREMENT PRIMARY KEY,
+    nombreP VARCHAR(50),
+    descripcionP VARCHAR(255),
+    precioReferencialP DECIMAL(10,2),
+    idCat INT,
+    FOREIGN KEY (idCat) REFERENCES Categoria(idCat) ON DELETE CASCADE
+);
+-- Crear tabla Detalle
+CREATE TABLE Detalle (
+    idDet INT AUTO_INCREMENT PRIMARY KEY,
+    cantidadDet INT,
+    precioRealUnitarioDet DECIMAL(10,2),
+    subtotalDet DECIMAL(10,2),
+    idComp INT,
+    idP INT,
+    FOREIGN KEY (idComp) REFERENCES Comprobante(idComp) ON DELETE CASCADE,
+    FOREIGN KEY (idP) REFERENCES Producto(idP) ON DELETE CASCADE
+);
+
+
+
+-- Sistema de registro de entrada y salida de electrodomésticos “Electro Track”
+
+
+-- Crear tabla Proveedor
+CREATE TABLE Proveedor (
+    idP CHAR(9) PRIMARY KEY,
+    razonSocialP VARCHAR(100) NOT NULL,
+    direccionP VARCHAR(150) NOT NULL
+);
+-- Crear tabla OrdenDeCompra
+CREATE TABLE OrdenDeCompra (
+    idOrden CHAR(9) PRIMARY KEY,
+    fechaHoraOrden DATETIME NOT NULL,
+    totalOrden DECIMAL(10,2) NOT NULL,
+    idP CHAR(9) NOT NULL,
+    FOREIGN KEY (idP) REFERENCES Proveedor(idP) ON DELETE CASCADE
+);
+
+-- Crear tabla Cliente
+CREATE TABLE Cliente (
+    idC CHAR(9) PRIMARY KEY,
+    tipoDocumC VARCHAR(20) NOT NULL,
+    nroDocumC INT NOT NULL UNIQUE,
+    nombresC VARCHAR(50) NOT NULL,
+    paternoC VARCHAR(50) NOT NULL,
+    maternoC VARCHAR(50) NOT NULL,
+    celularC INT NOT NULL
+);
+-- Crear tabla Comprobante
+CREATE TABLE Comprobante (
+    idComp CHAR(9) PRIMARY KEY,
+    tipoComp VARCHAR(20) NOT NULL,
+    fechaHoraComp DATETIME NOT NULL,
+    totalComp DECIMAL(10,2) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    FOREIGN KEY (idC) REFERENCES Cliente(idC) ON DELETE CASCADE
+);
+-- Crear tabla Electrodomestico
+CREATE TABLE Electrodomestico (
+    idE CHAR(9) PRIMARY KEY,
+    nombreE VARCHAR(50) NOT NULL,
+    marcaE VARCHAR(50) NOT NULL,
+    modeloE VARCHAR(50) NOT NULL,
+    precioVentaE DECIMAL(10,2) NOT NULL,
+    precioCompraE DECIMAL(10,2) NOT NULL
+);
+-- Crear tabla DetalleDeIngresoSalida
+CREATE TABLE DetalleDeIngresoSalida (
+    idDet CHAR(9) PRIMARY KEY,
+    tipoDet VARCHAR(20) NOT NULL,
+    subtotalDet DECIMAL(10,2) NOT NULL,
+    cantidadDet INT NOT NULL,
+    idE CHAR(9) NOT NULL,
+    idComp CHAR(9) NULL,
+    idOrden CHAR(9) NULL,
+    FOREIGN KEY (idE) REFERENCES Electrodomestico(idE) ON DELETE CASCADE,
+    FOREIGN KEY (idComp) REFERENCES Comprobante(idComp) ON DELETE CASCADE,
+    FOREIGN KEY (idOrden) REFERENCES OrdenDeCompra(idOrden) ON DELETE CASCADE
+);
+
+
+-- sistema de registro de asistencia de las enfermeras a la clínica Mac Salud 
+
+
+-- Crear tabla Enfermero
+CREATE TABLE Enfermero (
+    idE CHAR(9) PRIMARY KEY,
+    tipoDocumE VARCHAR(20) NOT NULL,
+    nroDocumE INT NOT NULL UNIQUE,
+    nombresE VARCHAR(50) NOT NULL,
+    paternoE VARCHAR(50) NOT NULL,
+    maternoE VARCHAR(50) NOT NULL,
+    fechaNacimientoE DATE NOT NULL,
+    generoE VARCHAR(10) NOT NULL
+);
+
+-- Crear tabla Calendario
+CREATE TABLE Calendario (
+    idC CHAR(9) PRIMARY KEY,
+    inicioC DATE NOT NULL,
+    finC DATE NOT NULL,
+    nombreC VARCHAR(50) NOT NULL
+);
+
+-- Crear tabla Ambiente
+CREATE TABLE Ambiente (
+    idAmb CHAR(9) PRIMARY KEY,
+    nroAmb INT NOT NULL,
+    ubicacionAmb VARCHAR(100) NOT NULL
+);
+
+-- Crear tabla Asistencia
+CREATE TABLE Asistencia (
+    idA CHAR(9) PRIMARY KEY,
+    fechaA DATE NOT NULL,
+    diaA VARCHAR(20) NOT NULL,
+    asistioA BIT NOT NULL,
+    tardoA BIT NOT NULL,
+    horaEntradaA TIME NULL,
+    horaSalidaA TIME NULL,
+    justificacionA TEXT NULL,
+    esDescansoA BIT NOT NULL,
+    idE CHAR(9) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    idAmb CHAR(9) NOT NULL,
+    FOREIGN KEY (idE) REFERENCES Enfermero(idE) ON DELETE CASCADE,
+    FOREIGN KEY (idC) REFERENCES Calendario(idC) ON DELETE CASCADE,
+    FOREIGN KEY (idAmb) REFERENCES Ambiente(idAmb) ON DELETE CASCADE
+);
+
+-- Ver enfermeros
+SELECT * FROM Enfermero;
+
+-- Ver calendarios
+SELECT * FROM Calendario;
+
+-- Ver ambientes
+SELECT * FROM Ambiente;
+
+-- Ver asistencias
+SELECT * FROM Asistencia;
+
+
+
+
+
+-- Sistema de facturación electrónica de la pollería Los Ángeles.
+
+
+DROP DATABASE IF EXISTS BDFacturacionPolleria;
+CREATE DATABASE BDFacturacionPolleria;
+USE BDFacturacionPolleria;
+
+-- Creación de la tabla Cliente
+DROP TABLE IF EXISTS Cliente;
+
+CREATE TABLE Cliente (
+    idC CHAR(9) PRIMARY KEY,
+    tipoDocumC VARCHAR(20) NOT NULL,
+    nroDocumC VARCHAR(20) NOT NULL UNIQUE,
+    nombresC VARCHAR(50) NOT NULL,
+    paternoC VARCHAR(50) NOT NULL,
+    maternoC VARCHAR(50) NOT NULL,
+    celularC VARCHAR(15) NOT NULL,
+    emailC VARCHAR(100) -- Nuevo campo agregado
+);
+
+-- Creación de la tabla Comprobante
+DROP TABLE IF EXISTS Comprobante;
+
+CREATE TABLE Comprobante (
+    idComp CHAR(9) PRIMARY KEY,
+    fechaHoraComp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    totalComp DECIMAL(10,2) NOT NULL,
+    idC CHAR(9) NOT NULL,
+    metodoPagoComp VARCHAR(50), -- Nuevo campo agregado
+    FOREIGN KEY (idC) REFERENCES Cliente(idC) ON DELETE CASCADE
+);
+
+-- Creación de la tabla Categoría
+DROP TABLE IF EXISTS Categoria;
+
+CREATE TABLE Categoria (
+    idCat CHAR(9) PRIMARY KEY,
+    nombreCat VARCHAR(50) NOT NULL,
+    descripcionCat VARCHAR(255) NOT NULL,
+    impuestoCat DECIMAL(5,2) -- Nuevo campo agregado
+);
+
+-- Creación de la tabla Producto
+DROP TABLE IF EXISTS Producto;
+
+CREATE TABLE Producto (
+    idP CHAR(9) PRIMARY KEY,
+    nombreP VARCHAR(50) NOT NULL,
+    descripcionP VARCHAR(255) NOT NULL,
+    precioReferencialP DECIMAL(10,2) NOT NULL,
+    idCat CHAR(9) NOT NULL,
+    stockP INT NOT NULL, -- Nuevo campo agregado
+    FOREIGN KEY (idCat) REFERENCES Categoria(idCat) ON DELETE CASCADE
+);
+
+-- Creación de la tabla Detalle
+DROP TABLE IF EXISTS Detalle;
+
+CREATE TABLE Detalle (
+    idDet CHAR(9) PRIMARY KEY,
+    cantidadDet INT NOT NULL CHECK (cantidadDet > 0),
+    precioRealUnitarioDet DECIMAL(10,2) NOT NULL,
+    subtotalDet DECIMAL(10,2) NOT NULL,
+    idComp CHAR(9) NOT NULL,
+    idP CHAR(9) NOT NULL,
+    descuentoDet DECIMAL(10,2), -- Nuevo campo agregado
+    FOREIGN KEY (idComp) REFERENCES Comprobante(idComp) ON DELETE CASCADE,
+    FOREIGN KEY (idP) REFERENCES Producto(idP) ON DELETE CASCADE
+);
+
+-- Insertar datos en Cliente
+INSERT INTO Cliente VALUES 
+('C00000001', 'DNI', '12345678', 'Juan', 'Perez', 'Lopez', '987654321', 'juan.perez@mail.com');
+
+-- Insertar datos en Comprobante
+INSERT INTO Comprobante VALUES 
+('COMP00001', NOW(), 150.00, 'C00000001', 'Tarjeta de Crédito');
+
+-- Insertar datos en Categoría
+INSERT INTO Categoria VALUES 
+('CAT000001', 'Pollos', 'Categoría de pollos a la brasa y a la parrilla', 18.00);
+
+-- Insertar datos en Producto
+INSERT INTO Producto VALUES 
+('PROD00001', 'Pollo a la brasa', 'Pollo entero con papas y ensalada', 55.00, 'CAT000001', 50);
+
+-- Insertar datos en Detalle
+INSERT INTO Detalle VALUES 
+('DET000001', 2, 55.00, 110.00, 'COMP00001', 'PROD00001', 10.00);
+
+-- Consultas para visualizar los datos
+SELECT * FROM Cliente;
+SELECT * FROM Comprobante;
+SELECT * FROM Categoria;
+SELECT * FROM Producto;
+SELECT * FROM Detalle;
+
+
+
+
+
+
+
+
+-- Registro de asistencia de clientes del gimnasio ‘Titanium’
+
+
+
+
+
+-- Creación de la tabla Cliente
+DROP TABLE IF EXISTS Cliente;
+
+CREATE TABLE Cliente (
+    idC CHAR(3) PRIMARY KEY,
+    tipoDocumC VARCHAR(50),
+    nroDocumC VARCHAR(50) UNIQUE,
+    nombresC VARCHAR(100),
+    paternoC VARCHAR(50),
+    maternoC VARCHAR(50),
+    generoC ENUM('Masculino', 'Femenino', 'Otro'),
+    fechaNacimC DATE,
+    enfermedadesC VARCHAR(255),
+    celularC VARCHAR(20),
+    correoC VARCHAR(100),
+    direccionC VARCHAR(255)
+);
+
+-- Creación de la tabla Disciplina
+DROP TABLE IF EXISTS Disciplina;
+
+CREATE TABLE Disciplina (
+    idD CHAR(3) PRIMARY KEY,
+    nombreD VARCHAR(100),
+    descripcionD VARCHAR(255),
+    nivelD VARCHAR(50),
+    duracionD INT -- En minutos
+);
+
+-- Creación de la tabla GrupoDisciplina
+DROP TABLE IF EXISTS GrupoDisciplina;
+
+CREATE TABLE GrupoDisciplina (
+    idG CHAR(3) PRIMARY KEY,
+    idD CHAR(3),
+    nombreG VARCHAR(100),
+    fechaInicioG DATE,
+    fechaFinG DATE,
+    cupoMaximoG INT,
+    horarioG VARCHAR(50),
+    FOREIGN KEY (idD) REFERENCES Disciplina(idD) ON DELETE CASCADE
+);
+
+-- Creación de la tabla Asistencia
+DROP TABLE IF EXISTS Asistencia;
+
+CREATE TABLE Asistencia (
+    idA CHAR(3) PRIMARY KEY,
+    idC CHAR(3),
+    fechaA DATE,
+    diaA VARCHAR(20),
+    esFeriadoA ENUM('Sí', 'No'),
+    asisteA ENUM('Sí', 'No'),
+    horaEntradaA DATETIME,
+    idG CHAR(3),
+    comentarioA VARCHAR(255),
+    temperaturaA DECIMAL(4,2), -- Control sanitario
+    FOREIGN KEY (idC) REFERENCES Cliente(idC) ON DELETE CASCADE,
+    FOREIGN KEY (idG) REFERENCES GrupoDisciplina(idG) ON DELETE CASCADE
+);
