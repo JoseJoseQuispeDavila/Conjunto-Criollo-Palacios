@@ -1,0 +1,766 @@
+
+-- MODELO NUMERO 1
+-- Sistema de registro, envíos y entrega de paquetes por la empresa nacional privada Shalom-Perú
+-- Conjunto Criollo Palacios
+-- 28/02/2025
+
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLESPACE tbShalom INCLUDING CONTENTS AND
+DATAFILES';
+EXCEPTION
+WHEN OTHERS THEN NULL;
+END;
+/
+CREATE TABLESPACE tbShalom
+DATAFILE 'D:\Oracle\tbShalom.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 10M MAXSIZE 1000M;
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLE Detalle CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE Paquete CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE Comprobante CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE Cliente CASCADE CONSTRAINTS';
+EXCEPTION
+WHEN OTHERS THEN NULL;
+END;
+/
+CREATE TABLE Cliente (
+idC CHAR(9) PRIMARY KEY,
+tipoDocumC VARCHAR2(20),
+nroDocumC VARCHAR2(20),
+nombresC VARCHAR2(50),
+paternoC VARCHAR2(50),
+maternoC VARCHAR2(50),
+celularC CHAR(9)
+);
+-- Crear la tabla Comprobante
+CREATE TABLE Comprobante (
+idComp VARCHAR2(20) PRIMARY KEY,
+fechaHoraComp DATE,
+totalComp NUMBER(10,2),
+OrigenComp VARCHAR2(100),
+DestinoComp VARCHAR2(100),
+idC CHAR(9),
+FOREIGN KEY (idC) REFERENCES Cliente(idC)
+);
+-- Crear la tabla Paquete
+CREATE TABLE Paquete (
+idP CHAR(9) PRIMARY KEY,
+descripcionP VARCHAR2(255),
+pesoP NUMBER(10,2)
+);
+-- Crear la tabla Detalle
+CREATE TABLE Detalle (
+idDet NUMBER PRIMARY KEY,
+precioPorKiloDet NUMBER(10,2),
+subtotalDet NUMBER(10,2),
+idComp VARCHAR2(20),
+idP CHAR(9),
+FOREIGN KEY (idComp) REFERENCES Comprobante(idComp),
+FOREIGN KEY (idP) REFERENCES Paquete(idP)
+);
+-- Insertar Clientes
+INSERT INTO Cliente (idC, tipoDocumC, nroDocumC, nombresC, paternoC, maternoC, celularC)
+VALUES
+('C01', 'DNI', '12345678', 'Juan', 'Pérez', 'Gómez', '987654321');
+INSERT INTO Cliente VALUES
+('C02', 'DNI', '87654321', 'María', 'López', 'Ramírez', '923456789');
+INSERT INTO Cliente VALUES
+('C03', 'DNI', '45612378', 'Carlos', 'Fernández', 'Soto', '956789123');
+-- Insertar Comprobantes
+INSERT INTO Comprobante (idComp, fechaHoraComp, totalComp, OrigenComp, DestinoComp, idC)
+VALUES
+('COMP1', TO_DATE('2024-02-28 10:30:00', 'YYYY-MM-DD HH24:MI:SS'), 150.50, 'Lima',
+'Arequipa', 'C01');
+INSERT INTO Comprobante VALUES
+('COMP2', TO_DATE('2024-02-28 14:00:00', 'YYYY-MM-DD HH24:MI:SS'), 80.75, 'Cusco', 'Lima',
+'C02');
+INSERT INTO Comprobante VALUES
+('COMP3', TO_DATE('2024-02-28 16:45:00', 'YYYY-MM-DD HH24:MI:SS'), 200.00, 'Trujillo',
+'Piura', 'C03');
+-- Insertar Paquetes
+INSERT INTO Paquete (idP, descripcionP, pesoP) VALUES
+('P1', 'Laptop HP', 2.5);
+INSERT INTO Paquete VALUES
+('P2', 'Ropa deportiva', 1.2);
+INSERT INTO Paquete VALUES
+('P3', 'Libros de ingeniería', 3.8);
+-- Insertar Detalles de Comprobantes
+INSERT INTO Detalle (idDet, precioPorKiloDet, subtotalDet, idComp, idP) VALUES
+(1, 50.00, 125.00, 'COMP1', 'P1');
+INSERT INTO Detalle VALUES
+(2, 40.00, 48.00, 'COMP2', 'P2');
+INSERT INTO Detalle VALUES
+(3, 55.00, 209.00, 'COMP3', 'P3');
+SELECT * FROM Cliente;
+SELECT * FROM Comprobante;
+SELECT * FROM Paquete;
+SELECT * FROM Detalle;
+
+
+
+
+-- Implementación modelo 2  en Oracle
+-- Sistema de registro de transacciones bancarias a nivel nacional - Perú de la empresa Super Giros.
+-- Conjunto Criollo Palacios
+-- 28/02/2025
+
+-- Eliminar el tablespace si existe
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLESPACE tbSuperGiros INCLUDING CONTENTS AND
+DATAFILES';
+EXCEPTION
+WHEN OTHERS THEN NULL;
+END;
+/
+-- Crear tablespace
+CREATE TABLESPACE tbSuperGiros
+DATAFILE 'D:\Oracle\tbSuperGiross.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 10M MAXSIZE 1000M;
+-- Eliminar tablas si existen
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLE Operacion CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE Cuenta CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE Cliente CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE Empleado CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE Banco CASCADE CONSTRAINTS';
+EXCEPTION
+WHEN OTHERS THEN NULL;
+END;
+/
+-- Crear tablas
+CREATE TABLE Banco (
+idB INT PRIMARY KEY,
+nombreB VARCHAR2(100),
+paginaWebB VARCHAR2(200)
+);
+CREATE TABLE Cliente (
+idC CHAR(9) PRIMARY KEY,
+tipoDocumC VARCHAR2(20),
+nroDocumC VARCHAR2(20) UNIQUE,
+nombresC VARCHAR2(50),
+paternoC VARCHAR2(50),
+maternoC VARCHAR2(50),
+celularC CHAR(9),
+referidoPor CHAR(9),
+CONSTRAINT fk_cliente_referido FOREIGN KEY (referidoPor) REFERENCES Cliente(idC)
+);
+CREATE TABLE Empleado (
+idE CHAR(9) PRIMARY KEY,
+tipoDocumE VARCHAR2(20),
+nroDocumE VARCHAR2(20) UNIQUE,
+nombresE VARCHAR2(50),
+paternoE VARCHAR2(50),
+maternoE VARCHAR2(50),
+celularE CHAR(9)
+);
+CREATE TABLE Cuenta (
+idCuenta CHAR(9) PRIMARY KEY,
+nroCuenta VARCHAR2(20) UNIQUE,
+saldoCuenta NUMBER(12,2),
+idB INT,
+idC CHAR(9),
+CONSTRAINT fk_cuenta_banco FOREIGN KEY (idB) REFERENCES Banco(idB),
+CONSTRAINT fk_cuenta_cliente FOREIGN KEY (idC) REFERENCES Cliente(idC)
+);
+CREATE TABLE Operacion (
+idDet NUMBER PRIMARY KEY,
+tipoOpe VARCHAR2(50),
+fechaHoraOpe DATE,
+montoOpe NUMBER(12,2),
+comisionOpe NUMBER(12,2),
+idC CHAR(9),
+idE CHAR(9),
+CONSTRAINT fk_operacion_cliente FOREIGN KEY (idC) REFERENCES Cliente(idC),
+CONSTRAINT fk_operacion_empleado FOREIGN KEY (idE) REFERENCES Empleado(idE)
+);
+-- ------------------------------------------------------------
+-- Insertar Bancos
+INSERT INTO Banco (idB, nombreB, paginaWebB) VALUES (1, 'Banco de Crédito', 'https://www.viabcp.com');
+INSERT INTO Banco (idB, nombreB, paginaWebB) VALUES (2, 'Interbank', 'https://interbank.pe');
+INSERT INTO Banco (idB, nombreB, paginaWebB) VALUES (3, 'BBVA', 'https://www.bbva.pe');
+
+-- Insertar Clientes
+INSERT INTO Cliente (idC, tipoDocC, numDocC, nombreC, apellidoPC, apellidoMC, telefonoC, referidoC) VALUES
+('C01', 'DNI', '12345678', 'Juan', 'Pérez', 'Gómez', '987654321', NULL);
+INSERT INTO Cliente (idC, tipoDocC, numDocC, nombreC, apellidoPC, apellidoMC, telefonoC, referidoC) VALUES
+('C02', 'DNI', '87654321', 'María', 'López', 'Ramírez', '923456789', 'C01');
+INSERT INTO Cliente (idC, tipoDocC, numDocC, nombreC, apellidoPC, apellidoMC, telefonoC, referidoC) VALUES
+('C03', 'DNI', '45612378', 'Carlos', 'Fernández', 'Soto', '956789123', 'C02');
+
+-- Insertar Empleados
+INSERT INTO Empleado (idE, tipoDocE, numDocE, nombreE, apellidoPE, apellidoME, telefonoE) VALUES
+('E01', 'DNI', '74125896', 'Pedro', 'García', 'Mejía', '964123789');
+INSERT INTO Empleado (idE, tipoDocE, numDocE, nombreE, apellidoPE, apellidoME, telefonoE) VALUES
+('E02', 'DNI', '85236974', 'Lucía', 'Ortega', 'Díaz', '987456321');
+
+-- Insertar Cuentas
+INSERT INTO Cuenta (idCta, numCuenta, saldo, idB, idC) VALUES
+('CT01', '1001-1234-5678', 5000.00, 1, 'C01');
+INSERT INTO Cuenta (idCta, numCuenta, saldo, idB, idC) VALUES
+('CT02', '2001-8765-4321', 3000.50, 2, 'C02');
+INSERT INTO Cuenta (idCta, numCuenta, saldo, idB, idC) VALUES
+('CT03', '3001-4561-2378', 4500.75, 3, 'C03');
+
+-- Consultas de verificación
+SELECT * FROM Banco;
+SELECT * FROM Cliente;
+SELECT * FROM Empleado;
+SELECT * FROM Cuenta;
+SELECT * FROM Operacion;
+
+
+
+
+
+
+
+-- Implementación modelo 3  en Oracle
+-- Sistema de registro de transacciones bancarias a nivel nacional - Perú de la empresa Super Giros.
+-- Conjunto Criollo Palacios
+-- 28/02/2025
+
+-- Eliminar el tablespace si existe
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLESPACE tbInpe INCLUDING CONTENTS AND DATAFILES';
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLCODE != -19510 THEN -- Evita errores si el tablespace no existe
+            RAISE;
+        END IF;
+END;
+/
+
+-- Crear tablespace
+CREATE TABLESPACE tbInpe
+DATAFILE 'D:\Oracle\tbInpe.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 10M MAXSIZE 1000M;
+
+-- Eliminar tablas si existen
+BEGIN
+    FOR tabla IN (SELECT table_name FROM user_tables WHERE table_name IN ('ASISTENCIA', 'TURNO', 'AÑO', 'EMPLEADO')) LOOP
+        EXECUTE IMMEDIATE 'DROP TABLE ' || tabla.table_name || ' CASCADE CONSTRAINTS';
+    END LOOP;
+END;
+/
+
+-- Crear tablas en el tablespace tbInpe
+CREATE TABLE Año (
+    idAño INT PRIMARY KEY,
+    inicioAño DATE,
+    finAño DATE
+) TABLESPACE tbInpe;
+
+CREATE TABLE Turno (
+    idT INT PRIMARY KEY,
+    nombreT VARCHAR2(50),
+    inicioT TIMESTAMP,
+    finT TIMESTAMP
+) TABLESPACE tbInpe;
+
+CREATE TABLE Empleado (
+    idE INT PRIMARY KEY,
+    tipoDocumE VARCHAR2(20),
+    nroDocumE VARCHAR2(20) UNIQUE,
+    nombresE VARCHAR2(50),
+    paternoE VARCHAR2(50),
+    maternoE VARCHAR2(50),
+    celularE VARCHAR2(20)
+) TABLESPACE tbInpe;
+
+CREATE TABLE Asistencia (
+    idA INT PRIMARY KEY,
+    fechaA DATE,
+    diaA VARCHAR2(10),
+    esFeriadoA CHAR(1),
+    asistioA CHAR(1),
+    tardoA CHAR(1),
+    horaEntradaA TIMESTAMP,
+    horaSalida TIMESTAMP,
+    idE INT,
+    idT INT,
+    CONSTRAINT fk_asistencia_empleado FOREIGN KEY (idE) REFERENCES Empleado(idE),
+    CONSTRAINT fk_asistencia_turno FOREIGN KEY (idT) REFERENCES Turno(idT)
+) TABLESPACE tbInpe;
+
+-- Eliminar datos previos
+DELETE FROM Asistencia;
+DELETE FROM Turno;
+DELETE FROM Empleado;
+DELETE FROM Año;
+
+-- Insertar datos en Año
+INSERT INTO Año (idAño, inicioAño, finAño)
+VALUES (2024, TO_DATE('2024-01-01', 'YYYY-MM-DD'), TO_DATE('2024-12-31', 'YYYY-MM-DD'));
+
+-- Insertar datos en Turno
+INSERT INTO Turno (idT, nombreT, inicioT, finT)
+VALUES (1, 'Mañana', TO_TIMESTAMP('07:00:00', 'HH24:MI:SS'), TO_TIMESTAMP('15:00:00', 'HH24:MI:SS'));
+
+INSERT INTO Turno (idT, nombreT, inicioT, finT)
+VALUES (2, 'Tarde', TO_TIMESTAMP('15:00:00', 'HH24:MI:SS'), TO_TIMESTAMP('23:00:00', 'HH24:MI:SS'));
+
+-- Insertar datos en Empleado
+INSERT INTO Empleado (idE, tipoDocumE, nroDocumE, nombresE, paternoE, maternoE, celularE)
+VALUES (1, 'DNI', '12345678', 'Juan', 'Pérez', 'Gómez', '987654321');
+
+INSERT INTO Empleado (idE, tipoDocumE, nroDocumE, nombresE, paternoE, maternoE, celularE)
+VALUES (2, 'DNI', '87654321', 'María', 'López', 'Ramírez', '923456789');
+
+-- Insertar datos en Asistencia
+INSERT INTO Asistencia (idA, fechaA, diaA, esFeriadoA, asistioA, tardoA, horaEntradaA, horaSalida, idE, idT)
+VALUES (1, TO_DATE('2024-02-28', 'YYYY-MM-DD'), 'Miércoles', 'N', 'S', 'N',
+        TO_TIMESTAMP('07:10:00', 'HH24:MI:SS'), TO_TIMESTAMP('15:00:00', 'HH24:MI:SS'), 1, 1);
+
+INSERT INTO Asistencia (idA, fechaA, diaA, esFeriadoA, asistioA, tardoA, horaEntradaA, horaSalida, idE, idT)
+VALUES (2, TO_DATE('2024-02-28', 'YYYY-MM-DD'), 'Miércoles', 'N', 'S', 'S',
+        TO_TIMESTAMP('15:15:00', 'HH24:MI:SS'), TO_TIMESTAMP('23:00:00', 'HH24:MI:SS'), 2, 2);
+
+-- Consultar datos
+SELECT * FROM Año;
+SELECT * FROM Turno;
+SELECT * FROM Empleado;
+SELECT * FROM Asistencia;
+
+
+
+
+-- . Sistema de registro de venta de platillos y bebidas en la pollería “Don Gallino”
+-- Conjunto Criollo Palacios
+-- 28/02/2025
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLESPACE tbGallino INCLUDING CONTENTS AND
+DATAFILES';
+EXCEPTION
+WHEN OTHERS THEN NULL;
+END;
+/
+-- Crear tablespace
+CREATE TABLESPACE tbGallino
+DATAFILE 'D:\Oracle\tbGallino.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 10M MAXSIZE 1000M;
+-- Intentar eliminar las tablas si existen
+BEGIN
+FOR tabla IN (SELECT table_name FROM user_tables WHERE table_name IN ('DETALLE',
+'COMPROBANTE', 'CLIENTE', 'PRODUCTO', 'CATEGORIA')) LOOP
+EXECUTE IMMEDIATE 'DROP TABLE ' || tabla.table_name || ' CASCADE CONSTRAINTS';
+END LOOP;
+END;
+/
+-- Crear la tabla Cliente
+CREATE TABLE Cliente (
+idC INT PRIMARY KEY,
+tipoDocumC VARCHAR2(20),
+nroDocumC VARCHAR2(20) UNIQUE,
+nombresC VARCHAR2(50),
+paternoC VARCHAR2(50),
+maternoC VARCHAR2(50),
+celularC VARCHAR2(20)
+) TABLESPACE tbGallino;
+-- Crear la tabla Comprobante
+CREATE TABLE Comprobante (
+idComp INT PRIMARY KEY,
+fechaHoraComp TIMESTAMP,
+totalComp NUMBER(10,2),
+idC INT,
+CONSTRAINT fk_comprobante_cliente FOREIGN KEY (idC) REFERENCES Cliente(idC)
+) TABLESPACE tbGallino;
+-- Crear la tabla Categoria
+CREATE TABLE Categoria (
+idCat INT PRIMARY KEY,
+nombreCat VARCHAR2(50),
+descripcionCat VARCHAR2(255)
+) TABLESPACE tbGallino;
+-- Crear la tabla Producto
+CREATE TABLE Producto (
+idP INT PRIMARY KEY,
+nombreP VARCHAR2(50),
+descripcionP VARCHAR2(255),
+precioReferencialP NUMBER(10,2),
+idCat INT,
+CONSTRAINT fk_producto_categoria FOREIGN KEY (idCat) REFERENCES Categoria(idCat)
+) TABLESPACE tbGallino;
+-- Crear la tabla Detalle
+CREATE TABLE Detalle (
+idDet INT PRIMARY KEY,
+cantidadDet INT,
+precioRealUnitarioDet NUMBER(10,2),
+subtotalDet NUMBER(10,2),
+idComp INT,
+idP INT,
+CONSTRAINT fk_detalle_comprobante FOREIGN KEY (idComp) REFERENCES
+Comprobante(idComp),
+CONSTRAINT fk_detalle_producto FOREIGN KEY (idP) REFERENCES Producto(idP)
+) TABLESPACE tbGallino;
+-- Insertar datos en Cliente
+INSERT INTO Cliente VALUES (1, 'DNI', '12345678', 'Carlos', 'Fernandez', 'Gomez', '987654321');
+INSERT INTO Cliente VALUES (2, 'DNI', '87654321', 'Ana', 'Lopez', 'Martinez', '912345678');
+-- Insertar datos en Categoria
+INSERT INTO Categoria VALUES (1, 'Pollo', 'Platos a base de pollo');
+INSERT INTO Categoria VALUES (2, 'Bebidas', 'Refrescos y bebidas');
+INSERT INTO Producto VALUES (1, 'Pollo a la brasa', 'Pollo entero con papas y ensalada', 55.00, 1);
+INSERT INTO Producto VALUES (2, 'Chicha Morada', 'Jarra de chicha morada', 10.00, 2);
+INSERT INTO Comprobante VALUES (1, 1, TO_TIMESTAMP('2024-02-27 12:00:00',
+'YYYY-MM-DD HH24:MI:SS'), 65.00);
+INSERT INTO Comprobante VALUES (2, 2, TO_TIMESTAMP('2024-02-28 18:00:00',
+'YYYY-MM-DD HH24:MI:SS'), 10.00);
+INSERT INTO Detalle VALUES (1, 1, 1, 1, 55.00, 55.00);
+INSERT INTO Detalle VALUES (2, 2, 2, 1, 10.00, 10.00);
+-- Consultar datos
+SELECT * FROM Cliente;
+SELECT * FROM Categoria;
+SELECT * FROM Producto;
+SELECT * FROM Comprobante;
+SELECT * FROM Detalle;
+
+
+
+
+
+
+
+-- SSistema de registro de entrada y salida de electrodomésticos “Electro Track”
+-- Conjunto Criollo Palacios
+-- 28/02/2025
+
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLESPACE tbElectro INCLUDING CONTENTS AND
+DATAFILES';
+EXCEPTION;
+WHEN OTHERS THEN NULL;
+END;
+/
+-- Crear tablespace
+CREATE TABLESPACE tbElectro
+DATAFILE 'D:\Oracle\tbElectro.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 10M MAXSIZE 1000M;
+-- Eliminar tablas si existen
+DROP TABLE detalleDelIngreso CASCADE CONSTRAINTS;
+DROP TABLE ordenCompra CASCADE CONSTRAINTS;
+DROP TABLE comprobante CASCADE CONSTRAINTS;
+DROP TABLE cliente CASCADE CONSTRAINTS;
+DROP TABLE electrodomestico CASCADE CONSTRAINTS;
+DROP TABLE proveedor CASCADE CONSTRAINTS;
+-- Tabla Proveedor
+CREATE TABLE proveedor (
+idP NUMBER PRIMARY KEY,
+RazonSocial VARCHAR2(100),
+DireccionP VARCHAR2(255)
+);
+-- Tabla Cliente
+CREATE TABLE cliente (
+idC NUMBER PRIMARY KEY,
+tipoDocumC VARCHAR2(20),
+nroDocumC VARCHAR2(50) UNIQUE,
+nombresC VARCHAR2(50),
+paternoC VARCHAR2(50),
+maternoC VARCHAR2(50),
+celularC VARCHAR2(20)
+);
+-- Tabla Orden de Compra
+CREATE TABLE ordenCompra (
+idOrden NUMBER PRIMARY KEY,
+FechaHoraOrden TIMESTAMP,
+totalOrden NUMBER(10,2),
+idP NUMBER,
+CONSTRAINT fk_orden_proveedor FOREIGN KEY (idP) REFERENCES proveedor(idP)
+);
+-- Tabla Electrodoméstico
+CREATE TABLE electrodomestico (
+idE NUMBER PRIMARY KEY,
+nombreE VARCHAR2(100),
+marcaE VARCHAR2(50),
+modeloE VARCHAR2(50),
+precioventaE NUMBER(10,2),
+preciocompraE NUMBER(10,2)
+);
+-- Tabla Comprobante
+CREATE TABLE comprobante (
+idComp NUMBER PRIMARY KEY,
+tipoComp VARCHAR2(50),
+FechaHoraComp DATE,
+TotalComp NUMBER(10,2),
+idC NUMBER,
+CONSTRAINT fk_comprobante_cliente FOREIGN KEY (idC) REFERENCES cliente(idC)
+);
+-- Tabla Detalle del Ingreso
+CREATE TABLE detalleDelIngreso (
+idDet NUMBER PRIMARY KEY,
+tipoDet NUMBER,
+subtotalDet NUMBER(10,2),
+cantidadDet NUMBER,
+idOrden NUMBER,
+idE NUMBER,
+CONSTRAINT fk_detalle_orden FOREIGN KEY (idOrden) REFERENCES
+ordenCompra(idOrden),
+CONSTRAINT fk_detalle_electrodomestico FOREIGN KEY (idE) REFERENCES
+electrodomestico(idE)
+);
+
+
+
+
+
+
+-- 6. Sistema de registro de asistencia de las enfermeras a la clínica Mac Salud 
+-- Conjunto Criollo Palacios
+-- 28/02/2025
+
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLESPACE tbMacSalud INCLUDING CONTENTS AND
+DATAFILES';
+EXCEPTION
+WHEN OTHERS THEN NULL;
+END;
+/
+-- Crear tablespace
+CREATE TABLESPACE tbMacSalud
+DATAFILE 'D:\Oracle\tbMacSalud.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 10M MAXSIZE 1000M;
+-- Eliminar tablas si existen
+DROP TABLE asistencia CASCADE CONSTRAINTS;
+DROP TABLE enfermero CASCADE CONSTRAINTS;
+DROP TABLE ambiente CASCADE CONSTRAINTS;
+DROP TABLE calendario CASCADE CONSTRAINTS;
+-- Tabla Enfermero
+CREATE TABLE enfermero (
+idE NUMBER PRIMARY KEY,
+tipoDocumentoE NUMBER,
+nroDocumentoE NUMBER UNIQUE,
+nombresE VARCHAR2(100),
+paternoE VARCHAR2(50),
+maternoE VARCHAR2(50),
+fechaNacimientoE DATE,
+generoE VARCHAR2(10)
+);
+-- Tabla Ambiente
+CREATE TABLE ambiente (
+idAmb NUMBER PRIMARY KEY,
+nroAmb NUMBER,
+ubicacionAmb VARCHAR2(255)
+);
+-- Tabla Calendario
+CREATE TABLE calendario (
+idC NUMBER PRIMARY KEY,
+inicioC DATE,
+finC DATE,
+nombreC VARCHAR2(100)
+);
+-- Tabla Asistencia
+CREATE TABLE asistencia (
+idA NUMBER PRIMARY KEY,
+fechaA DATE,
+diaA VARCHAR2(20),
+asistioA VARCHAR2(10),
+tardoA VARCHAR2(10),
+HoraEntradaA TIMESTAMP,
+HoraSalidaA TIMESTAMP,
+justificacionA VARCHAR2(255),
+esDescansoA NUMBER(1),
+idE NUMBER,
+idAmb NUMBER,
+idC NUMBER,
+CONSTRAINT fk_asistencia_enfermero FOREIGN KEY (idE) REFERENCES enfermero(idE),
+CONSTRAINT fk_asistencia_ambiente FOREIGN KEY (idAmb) REFERENCES
+ambiente(idAmb),
+CONSTRAINT fk_asistencia_calendario FOREIGN KEY (idC) REFERENCES calendario(idC)
+);
+-- Insertar datos en Enfermero
+INSERT INTO enfermero VALUES (1, 1, 12345678, 'Ana', 'Perez', 'Lopez', TO_DATE('1990-05-20',
+'YYYY-MM-DD'), 'Femenino');
+INSERT INTO enfermero VALUES (2, 1, 87654321, 'Carlos', 'Gomez', 'Fernandez',
+TO_DATE('1985-10-15', 'YYYY-MM-DD'), 'Masculino');
+-- Insertar datos en Ambiente
+INSERT INTO ambiente VALUES (1, 101, 'Piso 1 - Consultorio');
+INSERT INTO ambiente VALUES (2, 202, 'Piso 2 - Emergencias');
+-- Insertar datos en Calendario
+INSERT INTO calendario VALUES (1, TO_DATE('2024-03-01', 'YYYY-MM-DD'),
+TO_DATE('2024-03-31', 'YYYY-MM-DD'), 'Turno Marzo');
+INSERT INTO calendario VALUES (2, TO_DATE('2024-04-01', 'YYYY-MM-DD'),
+TO_DATE('2024-04-30', 'YYYY-MM-DD'), 'Turno Abril');
+-- Insertar datos en Asistencia
+INSERT INTO asistencia VALUES (1, TO_DATE('2024-03-05', 'YYYY-MM-DD'), 'Martes', 'Sí', 'No',
+TO_TIMESTAMP('08:00:00', 'HH24:MI:SS'), TO_TIMESTAMP('16:00:00', 'HH24:MI:SS'), NULL,
+0, 1, 1, 1);
+INSERT INTO asistencia VALUES (2, TO_DATE('2024-03-06', 'YYYY-MM-DD'), 'Miércoles', 'No',
+'No', NULL, NULL, 'Reposo médico', 1, 2, 2, 1);
+
+
+
+
+-- 7. Sistema de facturación electrónica de la pollería Los Ángeles.
+-- Conjunto Criollo Palacios
+-- 28/02/2025
+
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLESPACE tbAngeles INCLUDING CONTENTS AND
+DATAFILES';
+EXCEPTION
+WHEN OTHERS THEN NULL;
+END;
+/
+-- Crear tablespace
+CREATE TABLESPACE tbAngeles
+DATAFILE 'D:\Oracle\tbAngeles.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 10M MAXSIZE 1000M;
+-- Eliminar tablas si existen
+DROP TABLE Detalle CASCADE CONSTRAINTS;
+DROP TABLE Producto CASCADE CONSTRAINTS;
+DROP TABLE Categoria CASCADE CONSTRAINTS;
+DROP TABLE Comprobante CASCADE CONSTRAINTS;
+DROP TABLE Cliente CASCADE CONSTRAINTS;
+-- Tabla Cliente
+CREATE TABLE Cliente (
+idC INT PRIMARY KEY,
+tipoDocumC VARCHAR2(50),
+nroDocumC VARCHAR2(50) UNIQUE,
+nombresC VARCHAR2(100),
+paternoC VARCHAR2(50),
+maternoC VARCHAR2(50),
+celularC VARCHAR2(20)
+);
+-- Tabla Comprobante
+CREATE TABLE Comprobante (
+idComp INT PRIMARY KEY,
+idC INT,
+fechaHoraComp TIMESTAMP,
+totalComp DECIMAL(10,2),
+CONSTRAINT fk_comprobante_cliente FOREIGN KEY (idC) REFERENCES Cliente(idC)
+);
+-- Tabla Categoria
+CREATE TABLE Categoria (
+idCat INT PRIMARY KEY,
+nombreCat VARCHAR2(100),
+descripcionCat VARCHAR2(255)
+);
+-- Tabla Producto
+CREATE TABLE Producto (
+idP INT PRIMARY KEY,
+idCat INT,
+nombreP VARCHAR2(100),
+descripcionP VARCHAR2(255),
+precioReferencialP DECIMAL(10,2),
+CONSTRAINT fk_producto_categoria FOREIGN KEY (idCat) REFERENCES Categoria(idCat)
+);
+-- Tabla Detalle
+CREATE TABLE Detalle (
+idDet INT PRIMARY KEY,
+idComp INT,
+idP INT,
+cantidadDet INT,
+precioRealUnitarioDet DECIMAL(10,2),
+subtotalDet DECIMAL(10,2),
+CONSTRAINT fk_detalle_comprobante FOREIGN KEY (idComp) REFERENCES
+Comprobante(idComp),
+CONSTRAINT fk_detalle_producto FOREIGN KEY (idP) REFERENCES Producto(idP)
+);
+-- Insertar datos en Cliente
+INSERT INTO Cliente VALUES (1, 'DNI', '12345678', 'Carlos', 'Fernandez', 'Gomez', '987654321');
+INSERT INTO Cliente VALUES (2, 'DNI', '87654321', 'Ana', 'Lopez', 'Martinez', '912345678');
+-- Insertar datos en Categoria
+INSERT INTO Categoria VALUES (1, 'Pollo', 'Platos a base de pollo');
+INSERT INTO Categoria VALUES (2, 'Bebidas', 'Refrescos y bebidas');
+-- Insertar datos en Producto
+INSERT INTO Producto VALUES (1, 1, 'Pollo a la brasa', 'Pollo entero con papas y ensalada', 55.00);
+INSERT INTO Producto VALUES (2, 2, 'Chicha Morada', 'Jarra de chicha morada', 10.00);
+-- Insertar datos en Comprobante
+INSERT INTO Comprobante VALUES (1, 1, TO_DATE('2024-02-27', 'YYYY-MM-DD
+HH24:MI:SS'), 65.00);
+INSERT INTO Comprobante VALUES (2, 2, TO_DATE('2024-02-28', 'YYYY-MM-DD
+HH24:MI:SS'), 10.00);
+-- Insertar datos en Detalle
+INSERT INTO Detalle VALUES (1, 1, 1, 1, 55.00, 55.00);
+INSERT INTO Detalle VALUES (2, 2, 2, 1, 10.00, 10.00);
+
+
+
+
+
+
+
+-- 8. Registro de asistencia de clientes del gimnasio ‘Titanium’
+-- Conjunto Criollo Palacios
+-- 28/02/2025
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLESPACE tbTitanium INCLUDING CONTENTS AND
+DATAFILES';
+EXCEPTION
+WHEN OTHERS THEN NULL;
+END;
+/
+-- Crear tablespace
+CREATE TABLESPACE tbTitanium
+DATAFILE 'D:\Oracle\tbTitanium.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 10M MAXSIZE 1000M;
+-- Asegurar eliminación de tablas
+BEGIN
+EXECUTE IMMEDIATE 'DROP TABLE Asistencia CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE Cliente CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE GrupoDisciplina CASCADE CONSTRAINTS';
+EXECUTE IMMEDIATE 'DROP TABLE Disciplina CASCADE CONSTRAINTS';
+EXCEPTION
+WHEN OTHERS THEN NULL;
+END;
+/
+-- Crear Tabla Cliente
+CREATE TABLE Cliente (
+idC NUMBER PRIMARY KEY,
+tipoDocumC VARCHAR2(50),
+nroDocumC VARCHAR2(50),
+nombresC VARCHAR2(100),
+paternoC VARCHAR2(50),
+maternoC VARCHAR2(50),
+generoC VARCHAR2(10),
+fechaNacimC DATE,
+enfermedadesC VARCHAR2(255),
+celularC VARCHAR2(20)
+);
+-- Crear Tabla Disciplina
+CREATE TABLE Disciplina (
+idD NUMBER PRIMARY KEY,
+nombreD VARCHAR2(100),
+descripcionD VARCHAR2(255)
+);
+-- Crear Tabla GrupoDisciplina
+CREATE TABLE GrupoDisciplina (
+idG NUMBER PRIMARY KEY,
+idD NUMBER,
+nombreG VARCHAR2(100),
+fechaInicioG DATE,
+fechaFinG DATE,
+CONSTRAINT fk_grupo_disciplina FOREIGN KEY (idD) REFERENCES Disciplina(idD)
+);
+-- Crear Tabla Asistencia
+CREATE TABLE Asistencia (
+idA NUMBER PRIMARY KEY,
+idC NUMBER,
+fechaA DATE,
+diaA VARCHAR2(20),
+esFeriadoA VARCHAR2(10),
+asisteA VARCHAR2(10),
+horaEntradaA TIMESTAMP,
+CONSTRAINT fk_asistencia_cliente FOREIGN KEY (idC) REFERENCES Cliente(idC)
+);
+-- Insertar datos en Cliente (corregido)
+INSERT INTO Cliente (idC, tipoDocumC, nroDocumC, nombresC, paternoC, maternoC, generoC,
+fechaNacimC, enfermedadesC, celularC)
+VALUES (1, 'DNI', '12345678', 'Juan', 'Perez', 'Lopez', 'Masculino', TO_DATE('1995-06-15',
+'YYYY-MM-DD'), 'Ninguna', '987654321');
+INSERT INTO Cliente (idC, tipoDocumC, nroDocumC, nombresC, paternoC, maternoC, generoC,
+fechaNacimC, enfermedadesC, celularC)
+VALUES (2, 'DNI', '87654321', 'María', 'Gonzalez', 'Diaz', 'Femenino', TO_DATE('1998-03-22',
+'YYYY-MM-DD'), 'Asma', '912345678');
+-- Insertar datos en Disciplina
+INSERT INTO Disciplina VALUES (1, 'Yoga', 'Ejercicios de estiramiento y relajación');
+INSERT INTO Disciplina VALUES (2, 'CrossFit', 'Entrenamiento de alta intensidad');
+-- Insertar datos en GrupoDisciplina
+INSERT INTO GrupoDisciplina VALUES (1, 1, 'Yoga Mañana', TO_DATE('2024-01-10',
+'YYYY-MM-DD'), TO_DATE('2024-06-10', 'YYYY-MM-DD'));
+INSERT INTO GrupoDisciplina VALUES (2, 2, 'CrossFit Avanzado', TO_DATE('2024-02-15',
+'YYYY-MM-DD'), TO_DATE('2024-07-15', 'YYYY-MM-DD'));
+-- Insertar datos en Asistencia (solo si la tabla existe)
+INSERT INTO Asistencia (idA, idC, fechaA, diaA, esFeriadoA, asisteA, horaEntradaA)
+VALUES (1, 1, TO_DATE('2024-02-27', 'YYYY-MM-DD'), 'Martes', 'No', 'Si',
+TO_TIMESTAMP('2024-02-27 07:30:00', 'YYYY-MM-DD HH24:MI:SS'));
+INSERT INTO Asistencia (idA, idC, fechaA, diaA, esFeriadoA, asisteA, horaEntradaA)
+VALUES (2, 2, TO_DATE('2024-02-28', 'YYYY-MM-DD'), 'Miércoles', 'No', 'Si',
+TO_TIMESTAMP('2024-02-28 18:00:00', 'YYYY-MM-DD HH24:MI:SS'));
