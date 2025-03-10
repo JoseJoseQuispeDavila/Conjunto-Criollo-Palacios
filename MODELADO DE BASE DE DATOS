@@ -1,4 +1,4 @@
-CÓDIGO SQL SERVER
+--------------CÓDIGO SQL SERVER
 USE master;
 GO
 
@@ -114,7 +114,7 @@ CREATE TABLE Envio (
 );
 GO
 -------------------------------------
-CÓDIGO SQL 
+-------------CÓDIGO SQL 
 
 DROP DATABASE IF EXISTS BDSHARMELY;
 
@@ -212,3 +212,233 @@ CREATE TABLE Envio (
     FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE
 );
 --------------------------------------------------------------------------------------------
+
+-- CÓDIGO SQL DEVELOPER (PL SQL)
+
+-- Eliminar la base de datos si ya existe (Oracle no usa DROP DATABASE)
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Envio CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Pago CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Detalle_Pedido CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Pedido CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Usuario CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Cliente CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Producto CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Categoria CASCADE CONSTRAINTS';
+    EXECUTE IMMEDIATE 'DROP TABLE Proveedor CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+-- Tabla Proveedor
+CREATE TABLE Proveedor (
+    idProveedor NUMBER PRIMARY KEY,
+    nombreProveedor VARCHAR2(100) NOT NULL,
+    contactoProveedor VARCHAR2(100),
+    telefonoProveedor VARCHAR2(15),
+    materialesProveedor CLOB
+);
+
+-- Tabla Categoría
+CREATE TABLE Categoria (
+    codeCategoria NUMBER PRIMARY KEY,
+    nombreCategoria VARCHAR2(100) NOT NULL
+);
+
+-- Tabla Producto
+CREATE TABLE Producto (
+    codeProducto NUMBER PRIMARY KEY,
+    nombreProducto VARCHAR2(100) NOT NULL,
+    descripcionProducto CLOB,
+    precioProducto NUMBER(10,2) NOT NULL,
+    stockProducto NUMBER NOT NULL,
+    idProveedor NUMBER NOT NULL,
+    codeCategoria NUMBER NOT NULL,
+    CONSTRAINT fk_Producto_Proveedor FOREIGN KEY (idProveedor) REFERENCES Proveedor(idProveedor) ON DELETE CASCADE,
+    CONSTRAINT fk_Producto_Categoria FOREIGN KEY (codeCategoria) REFERENCES Categoria(codeCategoria) ON DELETE CASCADE
+);
+
+-- Tabla Cliente
+CREATE TABLE Cliente (
+    idCliente NUMBER PRIMARY KEY,
+    nombreCliente VARCHAR2(100) NOT NULL,
+    apellidoCliente VARCHAR2(100) NOT NULL,
+    telefonoCliente VARCHAR2(15),
+    direccionCliente CLOB
+);
+
+-- Tabla Usuario
+CREATE TABLE Usuario (
+    idUsuario NUMBER PRIMARY KEY,
+    nombreUsuario VARCHAR2(100) NOT NULL,
+    emailUsuario VARCHAR2(150) UNIQUE NOT NULL,
+    contraseñaUsuario VARCHAR2(255) NOT NULL,
+    idCliente NUMBER NOT NULL,
+    CONSTRAINT fk_Usuario_Cliente FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente) ON DELETE CASCADE
+);
+
+-- Tabla Pedido
+CREATE TABLE Pedido (
+    idPedido NUMBER PRIMARY KEY,
+    fechaPedido DATE NOT NULL,
+    estadoPedido VARCHAR2(50) NOT NULL,
+    montoTotalPedido NUMBER(10,2) NOT NULL,
+    descripcionPedido CLOB,
+    idUsuario NUMBER NOT NULL,
+    CONSTRAINT fk_Pedido_Usuario FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario) ON DELETE CASCADE
+);
+
+-- Tabla Detalle_Pedido
+CREATE TABLE Detalle_Pedido (
+    idDetalle NUMBER PRIMARY KEY,
+    cantidadDetPedido NUMBER NOT NULL,
+    subtotalDetPedido NUMBER(10,2) NOT NULL,
+    idPedido NUMBER NOT NULL,
+    codeProducto NUMBER NOT NULL,
+    CONSTRAINT fk_DetallePedido_Pedido FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE,
+    CONSTRAINT fk_DetallePedido_Producto FOREIGN KEY (codeProducto) REFERENCES Producto(codeProducto) ON DELETE CASCADE
+);
+
+-- Tabla Pago
+CREATE TABLE Pago (
+    idPago NUMBER PRIMARY KEY,
+    tipoPago VARCHAR2(50) NOT NULL,
+    estadoPago VARCHAR2(50),
+    idPedido NUMBER NOT NULL,
+    CONSTRAINT fk_Pago_Pedido FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE
+);
+
+-- Tabla Envío
+CREATE TABLE Envio (
+    idEnvio NUMBER PRIMARY KEY,
+    direccionEntrega CLOB NOT NULL,
+    empresaEnvio VARCHAR2(100),
+    costoEnvio NUMBER(10,2) NOT NULL,
+    fechaEntrega DATE NOT NULL,
+    estadoEnvio VARCHAR2(50),
+    idPedido NUMBER NOT NULL,
+    CONSTRAINT fk_Envio_Pedido FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE
+);
+
+------------------------------------------------------------------------------------------------------------------------
+Microsoft Azure SQL Databas
+-- Seleccionar la base de datos master
+USE master;
+GO
+
+-- Eliminar la base de datos si ya existe
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'BDSHARMELY')
+    DROP DATABASE BDSHARMELY;
+GO
+
+-- Crear la base de datos
+CREATE DATABASE BDSHARMELY;
+GO
+
+-- Usar la base de datos BDSHARMELY
+USE BDSHARMELY;
+GO
+
+-- Tabla Proveedor
+CREATE TABLE Proveedor (
+    idProveedor INT IDENTITY(1,1) PRIMARY KEY,
+    nombreProveedor NVARCHAR(100) NOT NULL,
+    contactoProveedor NVARCHAR(100),
+    telefonoProveedor NVARCHAR(15),
+    materialesProveedor NVARCHAR(MAX)
+);
+GO
+
+-- Tabla Categoría
+CREATE TABLE Categoria (
+    codeCategoria INT IDENTITY(1,1) PRIMARY KEY,
+    nombreCategoria NVARCHAR(100) NOT NULL
+);
+GO
+
+-- Tabla Producto (Relacionada con Proveedor y Categoría)
+CREATE TABLE Producto (
+    codeProducto INT IDENTITY(1,1) PRIMARY KEY,
+    nombreProducto NVARCHAR(100) NOT NULL,
+    descripcionProducto NVARCHAR(MAX),
+    precioProducto DECIMAL(10,2) NOT NULL,
+    stockProducto INT NOT NULL,
+    idProveedor INT NOT NULL,
+    codeCategoria INT NOT NULL,
+    FOREIGN KEY (idProveedor) REFERENCES Proveedor(idProveedor),
+    FOREIGN KEY (codeCategoria) REFERENCES Categoria(codeCategoria)
+);
+GO
+
+-- Tabla Cliente
+CREATE TABLE Cliente (
+    idCliente INT IDENTITY(1,1) PRIMARY KEY,
+    nombreCliente NVARCHAR(100) NOT NULL,
+    apellidoCliente NVARCHAR(100) NOT NULL,
+    telefonoCliente NVARCHAR(15),
+    direccionCliente NVARCHAR(MAX)
+);
+GO
+
+-- Tabla Usuario (Relacionada con Cliente)
+CREATE TABLE Usuario (
+    idUsuario INT IDENTITY(1,1) PRIMARY KEY,
+    nombreUsuario NVARCHAR(100) NOT NULL,
+    emailUsuario NVARCHAR(150) UNIQUE NOT NULL,
+    contraseñaUsuario NVARCHAR(255) NOT NULL,
+    idCliente INT NOT NULL,
+    FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente) ON DELETE CASCADE
+);
+GO
+
+-- Tabla Pedido (Relacionada con Cliente)
+CREATE TABLE Pedido (
+    idPedido INT IDENTITY(1,1) PRIMARY KEY,
+    fechaPedido DATE NOT NULL,
+    estadoPedido NVARCHAR(50) NOT NULL,
+    montoTotalPedido DECIMAL(10,2) NOT NULL,
+    descripcionPedido NVARCHAR(MAX),
+    idCliente INT NOT NULL,
+    FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente) ON DELETE CASCADE
+);
+GO
+
+-- Tabla Detalle_Pedido (Relacionada con Pedido y Producto)
+CREATE TABLE Detalle_Pedido (
+    idDetalle INT IDENTITY(1,1) PRIMARY KEY,
+    cantidadDetPedido INT NOT NULL,
+    subtotalDetPedido DECIMAL(10,2) NOT NULL,
+    idPedido INT NOT NULL,
+    codeProducto INT NOT NULL,
+    FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE,
+    FOREIGN KEY (codeProducto) REFERENCES Producto(codeProducto)
+);
+GO
+
+-- Tabla Pago (Relacionada con Pedido)
+CREATE TABLE Pago (
+    idPago INT IDENTITY(1,1) PRIMARY KEY,
+    tipoPago NVARCHAR(50) NOT NULL,
+    estadoPago NVARCHAR(50),
+    idPedido INT NOT NULL,
+    FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE
+);
+GO
+
+-- Tabla Envío (Relacionada con Pedido)
+CREATE TABLE Envio (
+    idEnvio INT IDENTITY(1,1) PRIMARY KEY,
+    direccionEntrega NVARCHAR(MAX) NOT NULL,
+    empresaEnvio NVARCHAR(100),
+    costoEnvio DECIMAL(10,2) NOT NULL,
+    fechaEntrega DATE NOT NULL,
+    estadoEnvio NVARCHAR(50),
+    idPedido INT NOT NULL,
+    FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE
+);
+GO
+
+
+
+
