@@ -1,0 +1,182 @@
+-- Consultas anidadas CCP
+
+--1 / 5.2 Mostrar los idS y los nombres de los solicitantes que hayan realizado pagos.
+
+IF OBJECT_ID('ObtenerSolicitantesPagos', 'P') IS NOT NULL
+    DROP PROCEDURE ObtenerSolicitantesPagos;
+GO
+
+CREATE PROCEDURE ObtenerSolicitantesPagos
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT idS, nombresS 
+	FROM tSolicitante
+    WHERE idS IN (SELECT idS
+        FROM tTramite
+        WHERE idT IN (SELECT idT
+            FROM tRecibo_Tramite));
+END;
+GO
+
+EXEC ObtenerSolicitantesPagos;
+GO
+
+--2 / 5.3 Mostrar las denominaciones de los conceptos por los que se hayan pagado recibos.
+IF OBJECT_ID('ObtenerConceptosPagosRecibos', 'P') IS NOT NULL
+    DROP PROCEDURE ObtenerConceptosPagosRecibos;
+GO
+
+CREATE PROCEDURE ObtenerConceptosPagosRecibos
+AS
+BEGIN
+
+	SELECT idC, denominacionC
+	FROM tconcepto
+	WHERE idC IN (SELECT idC FROM trecibo);
+
+END;
+GO
+
+EXEC ObtenerConceptosPagosRecibos;
+GO
+
+-- 3 / 5.4 Mostrar las denominaciones de las oficinas que estén relacionadas con trámites. 
+
+IF OBJECT_ID('ObtenerOficinasRelacionTramites', 'P') IS NOT NULL
+    DROP PROCEDURE ObtenerOficinasRelacionTramites;
+GO
+
+CREATE PROCEDURE ObtenerOficinasRelacionTramites
+AS
+BEGIN
+
+	SELECT idO, denominacionO
+	FROM toficina
+	WHERE idO IN (SELECT idO
+	FROM ttramite);
+END;
+GO
+
+EXEC ObtenerOficinasRelacionTramites;
+GO
+
+-- 4 / 5.5 Mostrar las denominaciones de las oficinas que hayan generado dinero a la Universidad.
+
+IF OBJECT_ID('ObtenerOficinasGeneraronDinero', 'P') IS NOT NULL
+    DROP PROCEDURE ObtenerOficinasGeneraronDinero;
+GO
+
+
+CREATE PROCEDURE ObtenerOficinasGeneraronDinero
+AS
+BEGIN
+
+	SELECT idO, denominacionO
+	FROM toficina
+	WHERE idO IN (SELECT idO
+	FROM ttramite
+	WHERE idT IN (SELECT idT
+	FROM tRecibo_Tramite));
+
+END;
+GO
+
+EXEC ObtenerOficinasGeneraronDinero;
+GO
+
+--5 / 5.6 Mostrar las denominaciones de los conceptos que no hayan generado dinero.
+IF OBJECT_ID('ObtenerConceptosNoGeneraronDinero', 'P') IS NOT NULL
+    DROP PROCEDURE ObtenerConceptosNoGeneraronDinero;
+GO
+
+CREATE PROCEDURE ObtenerConceptosNoGeneraronDinero
+AS
+BEGIN
+
+SELECT idC, denominacionC
+	FROM tconcepto
+	WHERE idC NOT IN (SELECT idC
+	FROM trecibo);
+
+END;
+GO
+EXEC ObtenerConceptosNoGeneraronDinero;
+GO
+-------------------------------
+--Mostrar los idS y los nombres de los solicitantes que hayan realizado pagos. 
+DELIMITER $$
+DROP PROCEDURE IF EXISTS ObtenerSolicitantesRecibo$$
+CREATE PROCEDURE ObtenerSolicitantesRecibo()
+BEGIN
+    SELECT idS, nombresS
+    FROM tSolicitante
+    WHERE idS IN (
+        SELECT idS
+        FROM tTramite
+        WHERE idT IN (
+            SELECT idT
+            FROM tRecibo_Tramite
+        )
+    );
+END$$
+DELIMITER ;
+
+--Mostrar las denominaciones de los conceptos por los que se hayan pagado recibos.
+DELIMITER $$
+DROP PROCEDURE IF EXISTS ObtenerDenominacionesConceptos$$
+
+CREATE PROCEDURE ObtenerDenominacionesConceptos()
+BEGIN
+SELECT idC, denominacionC
+ FROM tconcepto
+ WHERE idC IN (SELECT idC FROM trecibo);
+END$$
+DELIMITER ;
+
+--Mostrar las denominaciones de las oficinas que estén relacionadas con trámites.  
+DELIMITER $$
+DROP PROCEDURE IF EXISTS ObtenerDenominacionesTramites$$
+CREATE PROCEDURE ObtenerDenominacionesTramites()
+BEGIN
+SELECT idO, denominacionO
+ FROM toficina
+ WHERE idO IN (SELECT idO
+ FROM ttramite);
+END$$
+DELIMITER ;
+--Mostrar las denominaciones de las oficinas que hayan generado dinero a la Universidad
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS ObtenerDenominacionesOficinas$$
+
+CREATE PROCEDURE ObtenerDenominacionesOficinas()
+BEGIN
+SELECT idO, denominacionO
+FROM toficina
+ WHERE idO IN (SELECT idO
+ FROM ttramite
+ WHERE idT IN (SELECT idT
+ FROM tRecibo_Tramite));
+END$$
+
+DELIMITER ;
+
+--Mostrar las denominaciones de los conceptos que no hayan generado dinero.
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS ObtenerDenominacionesNoPago$$
+
+CREATE PROCEDURE ObtenerDenominacionesNoPago()
+BEGIN
+SELECT idC, denominacionC
+ FROM tconcepto
+ WHERE idC NOT IN (SELECT idC
+ FROM trecibo); 
+END$$
+
+DELIMITER ;
+
+
+
