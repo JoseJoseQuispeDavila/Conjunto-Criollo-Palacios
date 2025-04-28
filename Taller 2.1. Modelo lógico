@@ -1,0 +1,606 @@
+-- Crear la base de datos BDSHARMELY
+CREATE DATABASE BDSHARMELY;
+GO
+-- Usar la base de datos BDSHARMELY
+USE BDSHARMELY;
+GO
+-- Tabla Proveedor
+CREATE TABLE Proveedor (
+ idProveedor INT PRIMARY KEY,
+ nombreProveedor VARCHAR(100) NOT NULL,
+ contactoProveedor VARCHAR(100),
+ telefonoProveedor VARCHAR(15),
+ materialesProveedor TEXT
+);
+GO
+-- Tabla Categoría
+CREATE TABLE Categoria (
+ codeCategoria INT PRIMARY KEY,
+ nombreCategoria VARCHAR(100) NOT NULL
+);
+GO
+-- Tabla Producto (Relacionada con Proveedor y Categoría)
+CREATE TABLE Producto (
+ codeProducto INT PRIMARY KEY,
+ nombreProducto VARCHAR(100) NOT NULL,
+ descripcionProducto TEXT,
+ precioProducto DECIMAL(10,2) NOT NULL,
+ stockProducto INT NOT NULL,
+ idProveedor INT NOT NULL,
+ codeCategoria INT NOT NULL,
+ FOREIGN KEY (idProveedor) REFERENCES Proveedor(idProveedor) ON DELETE
+CASCADE,
+ FOREIGN KEY (codeCategoria) REFERENCES Categoria(codeCategoria) ON DELETE
+CASCADE
+);
+GO
+
+-- Tabla Cliente
+CREATE TABLE Cliente (
+ idCliente INT PRIMARY KEY,
+ nombreCliente VARCHAR(100) NOT NULL,
+ apellidoCliente VARCHAR(100) NOT NULL,
+ telefonoCliente VARCHAR(15),
+ direccionCliente TEXT
+);
+GO
+-- Tabla Usuario (Relacionada con Cliente)
+CREATE TABLE Usuario (
+ idUsuario INT PRIMARY KEY,
+ nombreUsuario VARCHAR(100) NOT NULL,
+ emailUsuario VARCHAR(150) UNIQUE NOT NULL,
+ contraseñaUsuario VARCHAR(255) NOT NULL,
+ idCliente INT NOT NULL,
+ FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente) ON DELETE CASCADE
+);
+GO
+-- Tabla Pedido (Relacionada con Cliente)
+CREATE TABLE Pedido (
+ idPedido INT PRIMARY KEY,
+ fechaPedido DATE NOT NULL,
+ estadoPedido VARCHAR(50) NOT NULL,
+ montoTotalPedido DECIMAL(10,2) NOT NULL,
+ descripcionPedido TEXT,
+ idCliente INT NOT NULL,
+ FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente) ON DELETE CASCADE
+);
+GO
+-- Tabla Detalle_Pedido (Relacionada con Pedido y Producto)
+CREATE TABLE Detalle_Pedido (
+ idDetalle INT PRIMARY KEY,
+ cantidadDetPedido INT NOT NULL,
+ subtotalDetPedido DECIMAL(10,2) NOT NULL,
+ idPedido INT NOT NULL,
+ codeProducto INT NOT NULL,
+ FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE,
+ FOREIGN KEY (codeProducto) REFERENCES Producto(codeProducto) ON DELETE
+CASCADE
+);
+GO
+-- Tabla Pago (Relacionada con Pedido)
+CREATE TABLE Pago (
+ idPago INT PRIMARY KEY,
+ tipoPago VARCHAR(50) NOT NULL,
+ estadoPago VARCHAR(50),
+ idPedido INT NOT NULL,
+ FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE
+);
+GO
+-- Tabla Envío (Relacionada con Pedido)
+CREATE TABLE Envio (
+ idEnvio INT PRIMARY KEY,
+ direccionEntrega TEXT NOT NULL,
+ empresaEnvio VARCHAR(100),
+ costoEnvio DECIMAL(10,2) NOT NULL,
+ fechaEntrega DATE NOT NULL,
+ estadoEnvio VARCHAR(50),
+ idPedido INT NOT NULL,
+ FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido) ON DELETE CASCADE
+);
+GO
+
+---------------------------------------------------------------
+-- Usar la base de datos BDSHARMELY
+USE BDSHARMELY;
+GO
+
+-- =============================================
+-- Inserción de datos en la tabla Proveedor
+-- =============================================
+PRINT 'Insertando datos en Proveedor...';
+INSERT INTO Proveedor (idProveedor, nombreProveedor, contactoProveedor, telefonoProveedor, materialesProveedor) VALUES
+(1, 'Proveedor Textiles Andinos', 'Carlos Mendoza', '987654321', 'Algodón Pima'),
+(2, 'Proveedor Cueros del Sur', 'Ana Torres', '912345678', 'Cuero Genuino'),
+(3, 'Proveedor Plásticos Industriales', 'Luis Rojas', '998877665', 'Polietileno'),
+(4, 'Proveedor Maderas Nobles', 'Maria Fernandez', '955667788', 'Cedro),
+(5, 'Proveedor Metales SAC', 'Jorge Paredes', '944332211', 'Acero Inoxidable'),
+(6, 'Proveedor Químicos del Perú', 'Sofia Castro', '933221100', 'Solventes'),
+(7, 'Proveedor Vidrios Templados', 'Ricardo Solis', '922110099', 'Vidrio Templado 6mm');
+GO
+PRINT 'Datos insertados en Proveedor.';
+
+-- =============================================
+-- Inserción de datos en la tabla Categoria
+-- =============================================
+PRINT 'Insertando datos en Categoria...';
+INSERT INTO Categoria (codeCategoria, nombreCategoria) VALUES
+(10, 'Ropa de Vestir'),
+(20, 'Calzado'),
+(30, 'Accesorios'),
+(40, 'Hogar'),
+(50, 'Tecnología'),
+(60, 'Juguetes'),
+(70, 'Deportes');
+GO
+PRINT 'Datos insertados en Categoria.';
+
+-- =============================================
+-- Inserción de datos en la tabla Producto
+-- =============================================
+PRINT 'Insertando datos en Producto...';
+INSERT INTO Producto (codeProducto, nombreProducto, descripcionProducto, precioProducto, stockProducto, idProveedor, codeCategoria) VALUES
+(101, 'Camisa de Algodón Pima', 'Camisa elegante de manga larga', 150.00, 50, 1, 10),
+(102, 'Zapatos de Cuero Genuino', 'Zapatos formales para caballero', 350.00, 30, 2, 20),
+(103, 'Casaca de Cuero', 'Casaca estilo motociclista', 600.00, 15, 2, 10),
+(104, 'Mesa de Centro de Cedro', 'Mesa de centro para sala', 450.00, 10, 4, 40),
+(105, 'Sartén de Acero Inoxidable', 'Sartén antiadherente 24cm', 80.00, 100, 5, 40),
+(106, 'Pelota de Fútbol Profesional', 'Pelota de cuero sintético tamaño 5', 120.00, 80, 3, 70),
+(107, 'Smartphone Modelo X', 'Teléfono inteligente de última generación', 1200.00, 25, 5, 50),
+(108, 'Muñeca Clásica', 'Muñeca de colección con vestido', 90.00, 40, 3, 60),
+(109, 'Correa de Cuero', 'Correa reversible para pantalón', 75.00, 60, 2, 30);
+GO
+PRINT 'Datos insertados en Producto.';
+
+-- =============================================
+-- Inserción de datos en la tabla Cliente
+-- =============================================
+PRINT 'Insertando datos en Cliente...';
+INSERT INTO Cliente (idCliente, nombreCliente, apellidoCliente, telefonoCliente, direccionCliente) VALUES
+(1, 'Ana', 'García', '911223344', 'Av. El Sol 123, Cusco'),
+(2, 'Luis', 'Martinez', '922334455', 'Calle Mantas 456, Cusco'),
+(3, 'María', 'Rodriguez', '933445566', 'Portal Comercio 789, Cusco'),
+(4, 'Carlos', 'Lopez', '944556677', 'Urb. Magisterio A-10, Cusco'),
+(5, 'Sofia', 'Hernandez', '955667788', 'Av. La Cultura 200, Wanchaq'),
+(6, 'Jorge', 'Perez', '966778899', 'Calle Belen 321, Cusco'),
+(7, 'Laura', 'Gomez', '977889900', 'Plaza San Blas 111, Cusco');
+GO
+PRINT 'Datos insertados en Cliente.';
+
+-- =============================================
+-- Inserción de datos en la tabla Usuario
+-- =============================================
+PRINT 'Insertando datos en Usuario...';
+INSERT INTO Usuario (idUsuario, nombreUsuario, emailUsuario, contraseñaUsuario, idCliente) VALUES
+(1001, 'anagarcia', 'ana.garcia@email.com', 'pass123', 1), -- Contraseña debe ser hasheada en un sistema real
+(1002, 'luismartinez', 'luis.martinez@email.com', 'pass456', 2),
+(1003, 'mariarodriguez', 'maria.rodriguez@email.com', 'pass789', 3),
+(1004, 'carloslopez', 'carlos.lopez@email.com', 'pass101', 4),
+(1005, 'sofiahernandez', 'sofia.hernandez@email.com', 'pass112', 5),
+(1006, 'jorgeperez', 'jorge.perez@email.com', 'pass131', 6),
+(1007, 'lauragomez', 'laura.gomez@email.com', 'pass415', 7);
+GO
+PRINT 'Datos insertados en Usuario.';
+
+-- =============================================
+-- Inserción de datos en la tabla Pedido
+-- =============================================
+PRINT 'Insertando datos en Pedido...';
+INSERT INTO Pedido (idPedido, fechaPedido, estadoPedido, montoTotalPedido, descripcionPedido, idCliente) VALUES
+(501, '2024-04-20', 'Entregado', 500.00, 'Pedido de ropa y zapatos', 1),
+(502, '2024-04-21', 'Enviado', 450.00, 'Pedido de mesa de centro', 4),
+(503, '2024-04-22', 'Procesando', 1200.00, 'Compra de smartphone', 7),
+(504, '2024-04-23', 'Entregado', 155.00, 'Compra de sartén y correa', 2),
+(505, '2024-04-24', 'Pendiente', 600.00, 'Pedido casaca de cuero', 5),
+(506, '2024-04-24', 'Enviado', 90.00, 'Compra de muñeca', 3),
+(507, '2024-04-25', 'Procesando', 120.00, 'Pedido pelota de fútbol', 6),
+(508, '2024-04-25', 'Entregado', 150.00, 'Compra camisa', 1);
+GO
+PRINT 'Datos insertados en Pedido.';
+
+-- =============================================
+-- Inserción de datos en la tabla Detalle_Pedido
+-- =============================================
+PRINT 'Insertando datos en Detalle_Pedido...';
+INSERT INTO Detalle_Pedido (idDetalle, cantidadDetPedido, subtotalDetPedido, idPedido, codeProducto) VALUES
+(10001, 1, 150.00, 501, 101), -- Pedido 501: Camisa
+(10002, 1, 350.00, 501, 102), -- Pedido 501: Zapatos
+(10003, 1, 450.00, 502, 104), -- Pedido 502: Mesa
+(10004, 1, 1200.00, 503, 107), -- Pedido 503: Smartphone
+(10005, 1, 80.00, 504, 105),  -- Pedido 504: Sartén
+(10006, 1, 75.00, 504, 109),  -- Pedido 504: Correa
+(10007, 1, 600.00, 505, 103), -- Pedido 505: Casaca
+(10008, 1, 90.00, 506, 108),  -- Pedido 506: Muñeca
+(10009, 1, 120.00, 507, 106), -- Pedido 507: Pelota
+(10010, 1, 150.00, 508, 101); -- Pedido 508: Camisa (otra)
+GO
+PRINT 'Datos insertados en Detalle_Pedido.';
+
+-- =============================================
+-- Inserción de datos en la tabla Pago
+-- =============================================
+PRINT 'Insertando datos en Pago...';
+INSERT INTO Pago (idPago, tipoPago, estadoPago, idPedido) VALUES
+(201, 'Tarjeta de Crédito', 'Aprobado', 501),
+(202, 'Transferencia Bancaria', 'Aprobado', 502),
+(203, 'Tarjeta de Débito', 'Pendiente', 503), -- Pago pendiente para pedido procesando
+(204, 'Yape/Plin', 'Aprobado', 504),
+(205, 'Tarjeta de Crédito', 'Pendiente', 505), -- Pago pendiente para pedido pendiente
+(206, 'Efectivo Contraentrega', 'Aprobado', 506),
+(207, 'Tarjeta de Débito', 'Aprobado', 507),
+(208, 'Yape/Plin', 'Aprobado', 508);
+GO
+PRINT 'Datos insertados en Pago.';
+
+-- =============================================
+-- Inserción de datos en la tabla Envio
+-- =============================================
+PRINT 'Insertando datos en Envio...';
+INSERT INTO Envio (idEnvio, direccionEntrega, empresaEnvio, costoEnvio, fechaEntrega, estadoEnvio, idPedido) VALUES
+(301, 'Av. El Sol 123, Cusco', 'Olva Courier', 15.00, '2024-04-22', 'Entregado', 501),
+(302, 'Urb. Magisterio A-10, Cusco', 'Shalom', 20.00, '2024-04-23', 'Enviado', 502),
+(303, 'Plaza San Blas 111, Cusco', 'Olva Courier', 12.00, '2024-04-28', 'En Almacén', 503), -- Aún no se envía
+(304, 'Calle Mantas 456, Cusco', 'Servientrega', 10.00, '2024-04-25', 'Entregado', 504),
+(305, 'Av. La Cultura 200, Wanchaq', 'Olva Courier', 18.00, '2024-04-29', 'Por Recoger', 505), -- Aún no se envía
+(306, 'Portal Comercio 789, Cusco', 'Motorizado Local', 8.00, '2024-04-25', 'Enviado', 506),
+(307, 'Calle Belen 321, Cusco', 'Shalom', 15.00, '2024-04-27', 'En Camino', 507),
+(308, 'Av. El Sol 123, Cusco', 'Olva Courier', 15.00, '2024-04-26', 'Entregado', 508);
+GO
+PRINT 'Datos insertados en Envio.';
+
+PRINT 'Todas las inserciones de datos de ejemplo han sido completadas.';
+GO
+----------------------------------------------
+-- -------------------------- CONSULTAS CON JOIN --------------------------
+
+-- 1. Mostrar el id del pedido, la fecha del pedido y el tipo de pago para todos los pedidos aprobados.
+-- Esta consulta muestra el ID del pedido, la fecha y el tipo de pago para todos aquellos pedidos que han sido aprobados.
+SELECT
+    P.idPedido,
+    P.fechaPedido,
+    PA.tipoPago
+FROM
+    Pedido AS P
+INNER JOIN
+    Pago AS PA ON P.idPedido = PA.idPedido
+WHERE
+    PA.estadoPago = 'Aprobado';
+GO
+
+-- 2. Listar el nombre completo del cliente y la fecha de entrega del pedido con ID 504.
+-- Esta consulta obtiene el nombre completo del cliente y la fecha de entrega del pedido con ID 504.
+SELECT
+    C.nombreCliente,
+    C.apellidoCliente,
+    E.fechaEntrega
+FROM
+    Cliente AS C
+INNER JOIN
+    Pedido AS PE ON C.idCliente = PE.idCliente
+INNER JOIN
+    Envio AS E ON PE.idPedido = E.idPedido
+WHERE
+    PE.idPedido = 504;
+GO
+
+-- 3. Mostrar los detalles del pedido con idPedido = 501, incluyendo el nombre del producto, cantidad y subtotal.
+-- Muestra el nombre de los productos, la cantidad y el subtotal de un pedido con ID 501.
+SELECT
+    PR.nombreProducto,
+    DP.cantidadDetPedido,
+    DP.subtotalDetPedido
+FROM
+    Detalle_Pedido AS DP
+INNER JOIN
+    Producto AS PR ON DP.codeProducto = PR.codeProducto
+WHERE
+    DP.idPedido = 501;
+GO
+
+-- -------------------------- CONSULTAS CON LEFT JOIN --------------------------
+
+-- 4. Mostrar todos los productos y el nombre de su proveedor.
+-- Esta consulta muestra todos los productos con el nombre de su proveedor, incluso si no tienen proveedor asociado.
+SELECT
+    P.nombreProducto,
+    PR.nombreProveedor
+FROM
+    Producto AS P
+LEFT JOIN
+    Proveedor AS PR ON P.idProveedor = PR.idProveedor;
+GO
+
+-- 5. Listar el cliente con ID 1 y la fecha de sus pedidos (si tiene alguno).
+-- Esta consulta muestra al cliente con ID 1 y la fecha de sus pedidos, si tiene alguno.
+SELECT
+    C.nombreCliente,
+    C.apellidoCliente,
+    P.fechaPedido
+FROM
+    Cliente AS C
+LEFT JOIN
+    Pedido AS P ON C.idCliente = P.idCliente
+WHERE
+    C.idCliente = 1
+ORDER BY
+    P.fechaPedido;
+GO
+
+-- 6. Mostrar el nombre del producto con código 105 y el nombre de su proveedor.
+-- Obtiene el nombre del producto con código 105 y su proveedor, si existe.
+SELECT
+    P.nombreProducto,
+    PR.nombreProveedor
+FROM
+    Producto AS P
+LEFT JOIN
+    Proveedor AS PR ON P.idProveedor = PR.idProveedor
+WHERE
+    P.codeProducto = 105;
+GO
+
+-- -------------------------- CONSULTAS ANIDADAS --------------------------
+
+-- 7. Encontrar los clientes que han realizado pedidos cuyo monto total es superior al promedio de todos los pedidos.
+-- Muestra los clientes cuyos pedidos tienen un monto total superior al promedio de todos los pedidos.
+SELECT DISTINCT
+    C.nombreCliente,
+    C.apellidoCliente
+FROM
+    Cliente AS C
+INNER JOIN
+    Pedido AS P ON C.idCliente = P.idCliente
+WHERE
+    P.montoTotalPedido > (SELECT AVG(montoTotalPedido) FROM Pedido);
+GO
+
+-- 8. Listar los productos que han sido incluidos en al menos un pedido.
+-- Muestra los productos que han sido incluidos en al menos un pedido.
+SELECT
+    P.nombreProducto
+FROM
+    Producto AS P
+WHERE
+    P.codeProducto IN (
+        SELECT DISTINCT
+            DP.codeProducto
+        FROM
+            Detalle_Pedido AS DP
+    );
+GO
+
+-- 9. Encontrar los proveedores que suministran productos de la categoría 'Ropa de Vestir'.
+-- Muestra los proveedores que suministran productos de la categoría 'Ropa de Vestir' (código 10).
+SELECT DISTINCT
+    PR.nombreProveedor
+FROM
+    Proveedor AS PR
+WHERE
+    PR.idProveedor IN (
+        SELECT
+            P.idProveedor
+        FROM
+            Producto AS P
+        WHERE
+            P.codeCategoria = 10
+    );
+GO
+
+-- -------------------------- VISTAS --------------------------
+
+-- 10. Vista para combinar información de Productos, Categorías y Proveedores.
+-- Esta vista combina la información de productos, categorías y proveedores en una sola vista.
+IF OBJECT_ID('VistaProductosDetallados', 'V') IS NOT NULL
+    DROP VIEW VistaProductosDetallados;
+GO
+
+CREATE VIEW VistaProductosDetallados AS
+SELECT
+    P.nombreProducto,
+    P.descripcionProducto,
+    P.precioProducto,
+    P.stockProducto,
+    C.nombreCategoria,
+    PR.nombreProveedor
+FROM
+    Producto AS P
+INNER JOIN
+    Categoria AS C ON P.codeCategoria = C.codeCategoria
+INNER JOIN
+    Proveedor AS PR ON P.idProveedor = PR.idProveedor;
+GO
+SELECT * FROM VistaProductosDetallados WHERE nombreCategoria = 'Hogar';
+GO
+
+-- 11. Vista para mostrar información básica de Pedidos y Clientes.
+-- Esta vista combina los datos de los pedidos y sus respectivos clientes.
+IF OBJECT_ID('VistaPedidosCliente', 'V') IS NOT NULL
+    DROP VIEW VistaPedidosCliente;
+GO
+
+CREATE VIEW VistaPedidosCliente AS
+SELECT
+    P.idPedido,
+    P.fechaPedido,
+    P.estadoPedido,
+    P.montoTotalPedido,
+    C.nombreCliente,
+    C.apellidoCliente
+FROM
+    Pedido AS P
+INNER JOIN
+    Cliente AS C ON P.idCliente = C.idCliente;
+GO
+SELECT * FROM VistaPedidosCliente WHERE apellidoCliente = 'García';
+GO
+
+-- 12. Vista para Detalles Completos de Pedidos.
+-- Esta vista proporciona los detalles completos de los pedidos, incluyendo el cliente y los productos asociados.
+IF OBJECT_ID('VistaDetalleCompletoPedido', 'V') IS NOT NULL
+    DROP VIEW VistaDetalleCompletoPedido;
+GO
+
+CREATE VIEW VistaDetalleCompletoPedido AS
+SELECT
+    P.idPedido,
+    P.fechaPedido,
+    C.nombreCliente,
+    C.apellidoCliente,
+    PR.nombreProducto,
+    DP.cantidadDetPedido,
+    DP.subtotalDetPedido
+FROM
+    Pedido AS P
+INNER JOIN
+    Cliente AS C ON P.idCliente = C.idCliente
+INNER JOIN
+    Detalle_Pedido AS DP ON P.idPedido = DP.idPedido
+INNER JOIN
+    Producto AS PR ON DP.codeProducto = PR.codeProducto;
+GO
+SELECT * FROM VistaDetalleCompletoPedido WHERE idPedido = 504;
+GO
+
+-- -------------------------- PROCEDIMIENTOS ALMACENADOS --------------------------
+
+-- 13. Procedimiento para insertar un nuevo Cliente y su Usuario asociado.
+-- Este procedimiento inserta un nuevo cliente y su usuario asociado, verificando la unicidad de los datos.
+IF OBJECT_ID('sp_InsertarClienteUsuario', 'P') IS NOT NULL
+    DROP PROCEDURE sp_InsertarClienteUsuario;
+GO
+
+CREATE PROCEDURE sp_InsertarClienteUsuario
+    @idCliente INT,
+    @nombreCliente VARCHAR(100),
+    @apellidoCliente VARCHAR(100),
+    @telefonoCliente VARCHAR(15),
+    @direccionCliente TEXT,
+    @idUsuario INT,
+    @nombreUsuario VARCHAR(100),
+    @emailUsuario VARCHAR(150),
+    @contraseñaUsuario VARCHAR(255)
+AS
+BEGIN
+    -- Validar unicidad de IDs y email antes de la transacción
+    IF EXISTS (SELECT 1 FROM Cliente WHERE idCliente = @idCliente)
+    BEGIN
+        PRINT 'Error: El idCliente ' + CAST(@idCliente AS VARCHAR) + ' ya existe.';
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM Usuario WHERE idUsuario = @idUsuario)
+    BEGIN
+        PRINT 'Error: El idUsuario ' + CAST(@idUsuario AS VARCHAR) + ' ya existe.';
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM Usuario WHERE emailUsuario = @emailUsuario)
+    BEGIN
+        PRINT 'Error: El emailUsuario ' + @emailUsuario + ' ya está registrado.';
+        RETURN;
+    END
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        INSERT INTO Cliente (idCliente, nombreCliente, apellidoCliente, telefonoCliente, direccionCliente)
+        VALUES (@idCliente, @nombreCliente, @apellidoCliente, @telefonoCliente, @direccionCliente);
+
+        INSERT INTO Usuario (idUsuario, nombreUsuario, emailUsuario, contraseñaUsuario, idCliente)
+        VALUES (@idUsuario, @nombreUsuario, @emailUsuario, @contraseñaUsuario, @idCliente);
+
+        COMMIT TRANSACTION;
+        PRINT 'Cliente y Usuario insertados correctamente.';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        PRINT 'Error: No se pudieron insertar los datos. Transacción revertida.';
+        THROW;
+    END CATCH
+END;
+GO
+EXEC sp_InsertarClienteUsuario
+    @idCliente = 8, @nombreCliente = 'Pedro', @apellidoCliente = 'Castillo', @telefonoCliente = '988776655', @direccionCliente = 'Calle Nueva 456',
+    @idUsuario = 1008, @nombreUsuario = 'pedrocas', @emailUsuario = 'pedro.castillo@email.com', @contraseñaUsuario = 'securepass';
+GO
+
+-- 14. Procedimiento para obtener todos los pedidos de un cliente específico.
+-- Este procedimiento obtiene todos los pedidos realizados por un cliente específico.
+IF OBJECT_ID('sp_ObtenerPedidosPorCliente', 'P') IS NOT NULL
+    DROP PROCEDURE sp_ObtenerPedidosPorCliente;
+GO
+
+CREATE PROCEDURE sp_ObtenerPedidosPorCliente
+    @idCliente INT
+AS
+BEGIN
+    SELECT
+        P.idPedido,
+        P.fechaPedido,
+        P.estadoPedido,
+        P.montoTotalPedido,
+        P.descripcionPedido
+    FROM
+        Pedido AS P
+    WHERE
+        P.idCliente = @idCliente
+    ORDER BY
+        P.fechaPedido DESC;
+END;
+GO
+EXEC sp_ObtenerPedidosPorCliente @idCliente = 1;
+GO
+
+-- 15. Procedimiento para actualizar el stock de un producto después de una venta.
+-- Este procedimiento actualiza el stock de un producto después de una venta, validando que la cantidad vendida sea mayor a cero y que haya suficiente stock.
+IF OBJECT_ID('sp_ActualizarStockProducto', 'P') IS NOT NULL
+    DROP PROCEDURE sp_ActualizarStockProducto;
+GO
+
+CREATE PROCEDURE sp_ActualizarStockProducto
+    @codeProducto INT,
+    @cantidadVendida INT
+AS
+BEGIN
+    IF @cantidadVendida <= 0
+    BEGIN
+        PRINT 'Error: La cantidad vendida debe ser mayor que cero.';
+        RETURN;
+    END
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DECLARE @stockActual INT;
+        -- Bloquear la fila para evitar condiciones de carrera (opcional pero bueno en alta concurrencia)
+        SELECT @stockActual = stockProducto FROM Producto WITH (UPDLOCK) WHERE codeProducto = @codeProducto;
+
+        IF @stockActual IS NULL
+        BEGIN
+            PRINT 'Error: Producto no encontrado.';
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        IF @stockActual < @cantidadVendida
+        BEGIN
+            PRINT 'Error: Stock insuficiente. Stock actual: ' + CAST(@stockActual AS VARCHAR);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        UPDATE Producto
+        SET stockProducto = stockProducto - @cantidadVendida
+        WHERE codeProducto = @codeProducto;
+
+        COMMIT TRANSACTION;
+        PRINT 'Stock actualizado correctamente para el producto ' + CAST(@codeProducto AS VARCHAR) + '. Nuevo stock: ' + CAST((@stockActual - @cantidadVendida) AS VARCHAR);
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        PRINT 'Error al actualizar el stock. Transacción revertida.';
+        THROW;
+    END CATCH
+END;
+GO
+EXEC sp_ActualizarStockProducto @codeProducto = 101, @cantidadVendida = 2;
+GO
