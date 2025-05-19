@@ -26,7 +26,7 @@ Desarrollar consultas en C# mediante Entity Framework que representen operacione
 
 ## ⚙️ Tecnologías utilizadas
 
-- **Lenguaje:** C# (.NET 6+)
+- **Lenguaje:** C# (.NET 5+)
 - **Framework:** ASP.NET MVC
 - **ORM:** Entity Framework Core
 - **Base de datos:** SQL Server (`BDVentas`)
